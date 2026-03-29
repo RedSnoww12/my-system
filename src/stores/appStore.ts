@@ -1,10 +1,11 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Phase, DailyLog, Meal, UserProfile } from '../types'
+import { supabase } from '../lib/supabase'
 
 function generateId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return generateId()
+    try { return crypto.randomUUID() } catch { /* fallback below */ }
   }
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0
@@ -28,10 +29,10 @@ function defaultProfile(): UserProfile {
   }
 }
 
-function emptyLog(date: string, profile: UserProfile): DailyLog {
+function emptyLog(date: string, userId: string, profile: UserProfile): DailyLog {
   return {
     id: generateId(),
-    user_id: 'local',
+    user_id: userId,
     date,
     morning_weight: null,
     calories_consumed: 0,
@@ -51,7 +52,10 @@ interface AppState {
   logs: DailyLog[]
   meals: Meal[]
   activeTab: string
+  userId: string
 
+  setUserId: (id: string) => void
+  loadFromSupabase: () => Promise<void>
   setActiveTab: (tab: string) => void
   setProfile: (p: Partial<UserProfile>) => void
   getTodayLog: () => DailyLog
@@ -63,6 +67,20 @@ interface AppState {
   getTodayMeals: () => Meal[]
 }
 
+// --- Supabase sync helpers (fire-and-forget, non-blocking) ---
+
+async function upsertLogToDb(log: DailyLog) {
+  const { id, created_at, ...rest } = log
+  await supabase.from('daily_logs').upsert(
+    { id, ...rest, created_at },
+    { onConflict: 'user_id,date' }
+  )
+}
+
+async function insertMealToDb(meal: Meal) {
+  await supabase.from('meals').insert(meal)
+}
+
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
@@ -70,6 +88,26 @@ export const useAppStore = create<AppState>()(
       logs: [],
       meals: [],
       activeTab: 'dashboard',
+      userId: '',
+
+      setUserId: (id) => set({ userId: id }),
+
+      loadFromSupabase: async () => {
+        const uid = get().userId
+        if (!uid) return
+
+        const [logsRes, mealsRes] = await Promise.all([
+          supabase.from('daily_logs').select('*').eq('user_id', uid).order('date', { ascending: true }),
+          supabase.from('meals').select('*').eq('user_id', uid).order('created_at', { ascending: true }),
+        ])
+
+        const logs = (logsRes.data ?? []) as DailyLog[]
+        const meals = (mealsRes.data ?? []) as Meal[]
+
+        if (logs.length > 0 || meals.length > 0) {
+          set({ logs, meals })
+        }
+      },
 
       setActiveTab: (tab) => set({ activeTab: tab }),
 
@@ -80,79 +118,91 @@ export const useAppStore = create<AppState>()(
         const today = todayStr()
         const existing = get().logs.find((l) => l.date === today)
         if (existing) return existing
-        const log = emptyLog(today, get().profile)
+        const log = emptyLog(today, get().userId, get().profile)
         set((s) => ({ logs: [...s.logs, log] }))
+        upsertLogToDb(log)
         return log
       },
 
-      updateTodayLog: (data) =>
+      updateTodayLog: (data) => {
+        const today = todayStr()
         set((s) => {
-          const today = todayStr()
           const exists = s.logs.some((l) => l.date === today)
           if (!exists) {
-            const log = { ...emptyLog(today, s.profile), ...data }
+            const log = { ...emptyLog(today, s.userId, s.profile), ...data }
+            upsertLogToDb(log)
             return { logs: [...s.logs, log] }
           }
-          return {
-            logs: s.logs.map((l) =>
-              l.date === today ? { ...l, ...data } : l
-            ),
-          }
-        }),
+          const updated = s.logs.map((l) =>
+            l.date === today ? { ...l, ...data } : l
+          )
+          const updatedLog = updated.find((l) => l.date === today)
+          if (updatedLog) upsertLogToDb(updatedLog)
+          return { logs: updated }
+        })
+      },
 
-      updateLogByDate: (date, data) =>
+      updateLogByDate: (date, data) => {
         set((s) => {
           const exists = s.logs.some((l) => l.date === date)
           if (!exists) {
-            const log = { ...emptyLog(date, s.profile), ...data }
+            const log = { ...emptyLog(date, s.userId, s.profile), ...data }
+            upsertLogToDb(log)
             return { logs: [...s.logs, log] }
           }
-          return {
-            logs: s.logs.map((l) =>
-              l.date === date ? { ...l, ...data } : l
-            ),
-          }
-        }),
+          const updated = s.logs.map((l) =>
+            l.date === date ? { ...l, ...data } : l
+          )
+          const updatedLog = updated.find((l) => l.date === date)
+          if (updatedLog) upsertLogToDb(updatedLog)
+          return { logs: updated }
+        })
+      },
 
       getLogByDate: (date) => {
         return get().logs.find((l) => l.date === date)
       },
 
-      addMeal: (meal) =>
+      addMeal: (meal) => {
         set((s) => {
           const newMeal: Meal = {
             ...meal,
             id: generateId(),
-            user_id: 'local',
+            user_id: s.userId,
             created_at: new Date().toISOString(),
           }
 
-          // Update today's totals
-          const today = todayStr()
-          const todayMeals = [...s.meals.filter((m) => m.log_date === today), newMeal]
-          const totalCal = todayMeals.reduce((a, m) => a + m.calories, 0)
-          const totalP = todayMeals.reduce((a, m) => a + m.protein_g, 0)
-          const totalF = todayMeals.reduce((a, m) => a + m.fat_g, 0)
-          const totalC = todayMeals.reduce((a, m) => a + m.carbs_g, 0)
+          insertMealToDb(newMeal)
 
-          const exists = s.logs.some((l) => l.date === today)
+          const mealDate = meal.log_date
+          const dateMeals = [...s.meals.filter((m) => m.log_date === mealDate), newMeal]
+          const totalCal = dateMeals.reduce((a, m) => a + m.calories, 0)
+          const totalP = dateMeals.reduce((a, m) => a + m.protein_g, 0)
+          const totalF = dateMeals.reduce((a, m) => a + m.fat_g, 0)
+          const totalC = dateMeals.reduce((a, m) => a + m.carbs_g, 0)
+
+          const exists = s.logs.some((l) => l.date === mealDate)
           const updatedLogs = exists
             ? s.logs.map((l) =>
-                l.date === today
+                l.date === mealDate
                   ? { ...l, calories_consumed: totalCal, protein_g: totalP, fat_g: totalF, carbs_g: totalC }
                   : l
               )
             : [
                 ...s.logs,
-                { ...emptyLog(today, s.profile), calories_consumed: totalCal, protein_g: totalP, fat_g: totalF, carbs_g: totalC },
+                { ...emptyLog(mealDate, s.userId, s.profile), calories_consumed: totalCal, protein_g: totalP, fat_g: totalF, carbs_g: totalC },
               ]
 
+          const updatedLog = updatedLogs.find((l) => l.date === mealDate)
+          if (updatedLog) upsertLogToDb(updatedLog)
+
           return { meals: [...s.meals, newMeal], logs: updatedLogs }
-        }),
+        })
+      },
 
       getRecentLogs: (days = 7) => {
         const logs = get().logs
-        return logs
+        return [...logs]
           .sort((a, b) => a.date.localeCompare(b.date))
           .slice(-days)
       },

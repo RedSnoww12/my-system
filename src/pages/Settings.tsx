@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { Eye, EyeOff, Trash2 } from 'lucide-react'
+import { Eye, EyeOff, Trash2, LogOut } from 'lucide-react'
 import { useAppStore } from '../stores/appStore'
+import { useAuth } from '../hooks/useAuth'
 
 export function Settings() {
   const { profile, setProfile } = useAppStore()
+  const { user, signOut } = useAuth()
   const [showKey, setShowKey] = useState(false)
 
   const handleClearData = () => {
@@ -39,6 +41,28 @@ export function Settings() {
             Nécessaire pour l'analyse photo et audio. Stockée localement.
           </p>
         </div>
+      </div>
+
+      {/* Account */}
+      <div className="bg-dark-800 rounded-2xl p-4 space-y-3">
+        {user && (
+          <div className="flex items-center gap-3 pb-3 border-b border-dark-700">
+            <div className="w-10 h-10 rounded-full bg-dark-700 flex items-center justify-center text-white font-bold text-sm">
+              {user.user_metadata?.full_name?.[0] ?? user.email?.[0]?.toUpperCase() ?? '?'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-white font-medium truncate">{user.user_metadata?.full_name ?? 'Utilisateur'}</p>
+              <p className="text-[10px] text-dark-500 truncate">{user.email}</p>
+            </div>
+          </div>
+        )}
+        <button
+          onClick={signOut}
+          className="flex items-center gap-3 text-dark-400 text-sm w-full"
+        >
+          <LogOut size={18} />
+          Se déconnecter
+        </button>
       </div>
 
       <div className="bg-dark-800 rounded-2xl p-4">
