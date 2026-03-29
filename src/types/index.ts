@@ -59,11 +59,22 @@ export interface AlgorithmResult {
   trend: Trend
 }
 
+export type AIProvider = 'openai' | 'gemini' | 'anthropic'
+
+export const AI_PROVIDER_LABELS: Record<AIProvider, string> = {
+  openai: 'OpenAI (GPT-4o)',
+  gemini: 'Google Gemini',
+  anthropic: 'Anthropic (Claude)',
+}
+
 export interface UserProfile {
   calorie_target: number
   protein_g: number
   fat_g: number
   carbs_g: number
   current_phase: Phase
+  ai_provider: AIProvider
   openai_api_key: string
+  gemini_api_key: string
+  anthropic_api_key: string
 }

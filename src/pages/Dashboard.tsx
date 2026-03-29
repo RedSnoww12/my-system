@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Footprints, Dumbbell } from 'lucide-react'
 import { useAppStore } from '../stores/appStore'
 import { analyzeCoaching, computeMovingAverage } from '../lib/algorithm'
-import { analyzePhoto, analyzeAudio } from '../lib/openai'
+import { getAI } from '../lib/ai'
 import { CalorieGauge } from '../components/dashboard/CalorieGauge'
 import { WeightCard } from '../components/dashboard/WeightCard'
 import { AlgorithmStatus } from '../components/dashboard/AlgorithmStatus'
@@ -38,7 +38,7 @@ export function Dashboard() {
     setAiLoading(true)
     setAiError(null)
     try {
-      const est = await analyzePhoto(base64, profile.openai_api_key)
+      const est = await getAI(profile).analyzePhoto(base64)
       setEstimation(est)
     } catch (e) {
       setAiError(e instanceof Error ? e.message : 'Erreur IA')
@@ -53,7 +53,7 @@ export function Dashboard() {
     setAiLoading(true)
     setAiError(null)
     try {
-      const est = await analyzeAudio(blob, profile.openai_api_key)
+      const est = await getAI(profile).analyzeAudio(blob)
       setEstimation(est)
     } catch (e) {
       setAiError(e instanceof Error ? e.message : 'Erreur IA')

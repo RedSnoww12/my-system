@@ -25,7 +25,10 @@ function defaultProfile(): UserProfile {
     fat_g: 70,
     carbs_g: 230,
     current_phase: 'deficit',
+    ai_provider: 'openai',
     openai_api_key: '',
+    gemini_api_key: '',
+    anthropic_api_key: '',
   }
 }
 
