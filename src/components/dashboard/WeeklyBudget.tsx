@@ -52,11 +52,6 @@ export function WeeklyBudget({ logs, profile }: WeeklyBudgetProps) {
   // Remaining days = today + future days
   const remainingDays = 7 - todayIdx // includes today
   // Budget still available for remaining days (future targets already included in balance)
-  const futureTargetSum = days.filter((d) => d.isFuture).reduce((s, d) => s + d.calTarget, 0)
-  const adjustedDailyTarget =
-    remainingDays > 0
-      ? Math.round((weekCalBalance - futureTargetSum + futureTargetSum) / remainingDays)
-      : 0
   // Simpler: remaining = weekBalance / remainingDays
   const calPerDayLeft = remainingDays > 0 ? Math.round(weekCalBalance / remainingDays) : 0
 
