@@ -8,6 +8,7 @@ import { WeightCard } from '../components/dashboard/WeightCard'
 import { AlgorithmStatus } from '../components/dashboard/AlgorithmStatus'
 import { MacroBreakdown } from '../components/dashboard/MacroBreakdown'
 import { WeightChart } from '../components/charts/WeightChart'
+import { WeeklyBudget } from '../components/dashboard/WeeklyBudget'
 import { FAB } from '../components/layout/FAB'
 import { CameraCapture } from '../components/tracking/CameraCapture'
 import { AudioCapture } from '../components/tracking/AudioCapture'
@@ -18,7 +19,7 @@ import { PhotoSourceSheet } from '../components/tracking/PhotoSourceSheet'
 import type { AIEstimation } from '../types'
 
 export function Dashboard() {
-  const { profile, getTodayLog, updateTodayLog, addMeal, getRecentLogs } = useAppStore()
+  const { profile, logs, getTodayLog, updateTodayLog, addMeal, getRecentLogs } = useAppStore()
   const todayLog = getTodayLog()
   const recentLogs = getRecentLogs(7)
 
@@ -166,6 +167,9 @@ export function Dashboard() {
         fat={{ current: todayLog.fat_g, target: profile.fat_g }}
         carbs={{ current: todayLog.carbs_g, target: profile.carbs_g }}
       />
+
+      {/* Weekly Budget */}
+      <WeeklyBudget logs={logs} profile={profile} />
 
       {/* Mini Chart */}
       <WeightChart logs={recentLogs} />
