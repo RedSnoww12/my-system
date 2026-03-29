@@ -75,6 +75,7 @@ export interface UserProfile {
   protein_g: number
   fat_g: number
   carbs_g: number
+  step_goal: number
   current_phase: Phase
   ai_provider: AIProvider
   openai_api_key: string

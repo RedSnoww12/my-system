@@ -35,6 +35,7 @@ function defaultProfile(): UserProfile {
     fat_pct: fat,
     carbs_pct: carbs,
     ...computeMacroGrams(cals, prot, fat, carbs),
+    step_goal: 10000,
     current_phase: 'deficit',
     ai_provider: 'openai',
     openai_api_key: '',

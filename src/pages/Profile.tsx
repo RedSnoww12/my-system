@@ -64,6 +64,41 @@ export function Profile() {
         </Field>
       </div>
 
+      {/* Steps */}
+      <div className="bg-dark-800 rounded-2xl p-4">
+        <Field label="Objectif quotidien de pas">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setProfile({ step_goal: Math.max(1000, profile.step_goal - 1000) })}
+              className="w-12 h-12 rounded-xl bg-dark-700 text-white text-xl font-bold active:bg-dark-600 transition-colors"
+            >-</button>
+            <input
+              type="number"
+              value={profile.step_goal}
+              onChange={(e) => setProfile({ step_goal: Math.max(0, Number(e.target.value)) })}
+              className="flex-1 bg-dark-700 rounded-xl py-3 text-white text-center text-xl font-bold outline-none tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <button
+              onClick={() => setProfile({ step_goal: profile.step_goal + 1000 })}
+              className="w-12 h-12 rounded-xl bg-dark-700 text-white text-xl font-bold active:bg-dark-600 transition-colors"
+            >+</button>
+          </div>
+          <div className="flex justify-between mt-2">
+            {[5000, 8000, 10000, 12000, 15000].map((v) => (
+              <button
+                key={v}
+                onClick={() => setProfile({ step_goal: v })}
+                className={`text-xs px-2 py-1 rounded-lg transition-colors ${
+                  profile.step_goal === v ? 'bg-accent text-dark-900 font-semibold' : 'bg-dark-700 text-dark-400 active:bg-dark-600'
+                }`}
+              >
+                {(v / 1000).toFixed(0)}k
+              </button>
+            ))}
+          </div>
+        </Field>
+      </div>
+
       {/* Presets */}
       <div className="bg-dark-800 rounded-2xl p-4">
         <p className="text-xs text-dark-500 font-medium mb-3">Presets rapides</p>

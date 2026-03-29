@@ -64,12 +64,7 @@ export function WeeklyBudget({ logs, profile }: WeeklyBudgetProps) {
   const calSurplus = weekCalConsumed - days.filter((d) => !d.isFuture).reduce((s, d) => s + d.calTarget, 0)
 
   // ── Steps ──
-  // Step goal: average of last 7 logs that have steps > 0, fallback 10000
-  const logsWithSteps = [...logs].filter((l) => l.daily_steps > 0).slice(-14)
-  const stepGoal =
-    logsWithSteps.length > 0
-      ? Math.round(logsWithSteps.reduce((s, l) => s + l.daily_steps, 0) / logsWithSteps.length)
-      : 10000
+  const stepGoal = profile.step_goal
   const weekStepTarget = stepGoal * 7
   const weekStepsDone = days.reduce((s, d) => s + d.steps, 0)
   const stepPct = Math.min(100, Math.round((weekStepsDone / weekStepTarget) * 100))
