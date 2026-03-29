@@ -2,9 +2,10 @@ import { useRef } from 'react'
 
 interface CameraCaptureProps {
   onCapture: (base64: string) => void
+  source?: 'camera' | 'library'
 }
 
-export function CameraCapture({ onCapture }: CameraCaptureProps) {
+export function CameraCapture({ onCapture, source = 'camera' }: CameraCaptureProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,7 +28,7 @@ export function CameraCapture({ onCapture }: CameraCaptureProps) {
       ref={inputRef}
       type="file"
       accept="image/*"
-      capture="environment"
+      {...(source === 'camera' ? { capture: 'environment' as const } : {})}
       onChange={handleChange}
       className="hidden"
     />

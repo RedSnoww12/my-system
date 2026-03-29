@@ -14,6 +14,7 @@ import { AudioCapture } from '../components/tracking/AudioCapture'
 import { MealBottomSheet } from '../components/tracking/MealBottomSheet'
 import { ManualEntry } from '../components/tracking/ManualEntry'
 import { PhotoContextSheet } from '../components/tracking/PhotoContextSheet'
+import { PhotoSourceSheet } from '../components/tracking/PhotoSourceSheet'
 import type { AIEstimation } from '../types'
 
 export function Dashboard() {
@@ -21,7 +22,7 @@ export function Dashboard() {
   const todayLog = getTodayLog()
   const recentLogs = getRecentLogs(7)
 
-  const [mode, setMode] = useState<'idle' | 'camera' | 'audio' | 'manual'>('idle')
+  const [mode, setMode] = useState<'idle' | 'camera' | 'library' | 'photo-source' | 'audio' | 'manual'>('idle')
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [estimation, setEstimation] = useState<AIEstimation | null>(null)
@@ -171,13 +172,23 @@ export function Dashboard() {
 
       {/* FAB */}
       <FAB
-        onPhoto={() => setMode('camera')}
+        onPhoto={() => setMode('photo-source')}
         onAudio={() => setMode('audio')}
         onManual={() => setMode('manual')}
       />
 
+      {/* Photo source chooser */}
+      {mode === 'photo-source' && (
+        <PhotoSourceSheet
+          onCamera={() => setMode('camera')}
+          onLibrary={() => setMode('library')}
+          onCancel={() => setMode('idle')}
+        />
+      )}
+
       {/* Camera */}
-      {mode === 'camera' && <CameraCapture onCapture={handlePhotoCapture} />}
+      {mode === 'camera' && <CameraCapture onCapture={handlePhotoCapture} source="camera" />}
+      {mode === 'library' && <CameraCapture onCapture={handlePhotoCapture} source="library" />}
 
       {/* Photo context — description step after camera */}
       {capturedPhoto && (
