@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Plus, Dumbbell, X, Check } from 'lucide-react'
 import { useAppStore } from '../stores/appStore'
-import { PHASE_LABELS, type DailyLog } from '../types'
+import { PHASE_LABELS, type DailyLog, type Phase } from '../types'
 
 export function History() {
   const { logs, meals, updateLogByDate } = useAppStore()
@@ -111,11 +111,13 @@ interface HistoryEntryModalProps {
 }
 
 function HistoryEntryModal({ existing, onSave, onClose }: HistoryEntryModalProps) {
+  const { profile } = useAppStore()
   const [date, setDate] = useState(existing?.date ?? '')
   const [weight, setWeight] = useState(existing?.morning_weight?.toString() ?? '')
   const [calories, setCalories] = useState(existing?.calories_consumed?.toString() ?? '0')
   const [steps, setSteps] = useState(existing?.daily_steps?.toString() ?? '0')
   const [workout, setWorkout] = useState(existing?.workout_done ?? false)
+  const [phase, setPhase] = useState<Phase>(existing?.current_phase ?? profile.current_phase)
 
   const isEdit = !!existing
 
@@ -126,6 +128,7 @@ function HistoryEntryModal({ existing, onSave, onClose }: HistoryEntryModalProps
       calories_consumed: parseInt(calories) || 0,
       daily_steps: parseInt(steps) || 0,
       workout_done: workout,
+      current_phase: phase,
     })
   }
 
@@ -191,6 +194,26 @@ function HistoryEntryModal({ existing, onSave, onClose }: HistoryEntryModalProps
                 onChange={(e) => setSteps(e.target.value)}
                 className="w-full bg-dark-700 rounded-xl px-4 py-3 text-white text-sm outline-none tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
+            </div>
+
+            {/* Phase selector */}
+            <div>
+              <p className="text-xs text-dark-500 mb-2">Phase</p>
+              <div className="flex flex-wrap gap-2">
+                {(Object.entries(PHASE_LABELS) as [Phase, string][]).map(([key, label]) => (
+                  <button
+                    key={key}
+                    onClick={() => setPhase(key)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
+                      phase === key
+                        ? 'bg-accent text-dark-900'
+                        : 'bg-dark-700 text-dark-400 active:bg-dark-600'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Workout Toggle */}
