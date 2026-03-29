@@ -23,12 +23,19 @@ export function getAI(profile: UserProfile) {
   const impl = getImpl(profile.ai_provider)
   const apiKey = getApiKey(profile)
 
+  function requireKey(): string {
+    if (!apiKey) {
+      throw new Error(`Clé API ${profile.ai_provider} manquante. Va dans Réglages pour l'ajouter.`)
+    }
+    return apiKey
+  }
+
   return {
     analyzePhoto: (base64Image: string): Promise<AIEstimation> =>
-      impl.analyzePhoto(base64Image, apiKey),
+      impl.analyzePhoto(base64Image, requireKey()),
     analyzeAudio: (audioBlob: Blob): Promise<AIEstimation> =>
-      impl.analyzeAudio(audioBlob, apiKey),
+      impl.analyzeAudio(audioBlob, requireKey()),
     analyzeText: (text: string): Promise<AIEstimation> =>
-      impl.analyzeText(text, apiKey),
+      impl.analyzeText(text, requireKey()),
   }
 }

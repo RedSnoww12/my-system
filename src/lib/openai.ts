@@ -35,6 +35,7 @@ export async function analyzePhoto(base64Image: string, apiKey: string): Promise
   })
 
   const data = await res.json()
+  if (!res.ok) throw new Error(data.error?.message ?? `Erreur OpenAI ${res.status}`)
   const content = data.choices[0].message.content
   return JSON.parse(content) as AIEstimation
 }
@@ -73,6 +74,7 @@ export async function analyzeText(text: string, apiKey: string): Promise<AIEstim
   })
 
   const data = await res.json()
+  if (!res.ok) throw new Error(data.error?.message ?? `Erreur OpenAI ${res.status}`)
   const content = data.choices[0].message.content
   return JSON.parse(content) as AIEstimation
 }
