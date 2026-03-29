@@ -7,25 +7,34 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Handle PKCE code exchange from URL params
-    const params = new URLSearchParams(window.location.search)
-    const code = params.get('code')
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(({ data: { session } }) => {
-        setUser(session?.user ?? null)
-        setLoading(false)
-        // Clean URL
-        window.history.replaceState(null, '', window.location.pathname)
-      }).catch(() => {
-        setLoading(false)
-      })
-    } else {
-      // No code in URL — check existing session
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        setUser(session?.user ?? null)
-        setLoading(false)
-      })
+    const init = async () => {
+      // If URL has access_token in hash, manually set session
+      const hash = window.location.hash
+      if (hash && hash.includes('access_token')) {
+        const params = new URLSearchParams(hash.substring(1))
+        const accessToken = params.get('access_token')
+        const refreshToken = params.get('refresh_token')
+
+        if (accessToken && refreshToken) {
+          const { data } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          })
+          setUser(data.session?.user ?? null)
+          setLoading(false)
+          // Clean URL
+          window.history.replaceState(null, '', window.location.pathname)
+          return
+        }
+      }
+
+      // No hash — check existing session
+      const { data: { session } } = await supabase.auth.getSession()
+      setUser(session?.user ?? null)
+      setLoading(false)
     }
+
+    init()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
