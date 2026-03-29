@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Eye, EyeOff, Trash2, LogOut, ChevronDown } from 'lucide-react'
 import { useAppStore } from '../stores/appStore'
 import { useAuth } from '../hooks/useAuth'
-import type { AIProvider } from '../types'
+import type { AIProvider, UserProfile } from '../types'
 import { AI_PROVIDER_LABELS } from '../types'
 
 const PROVIDER_KEY_PLACEHOLDER: Record<AIProvider, string> = {
@@ -23,7 +23,7 @@ const PROVIDER_NOTE: Record<AIProvider, string> = {
   anthropic: "Supporte photo et texte (pas l'audio). Stockée localement.",
 }
 
-function getProviderKey(profile: ReturnType<typeof useAppStore>['profile'], provider: AIProvider): string {
+function getProviderKey(profile: UserProfile, provider: AIProvider): string {
   switch (provider) {
     case 'openai': return profile.openai_api_key
     case 'gemini': return profile.gemini_api_key
@@ -31,7 +31,7 @@ function getProviderKey(profile: ReturnType<typeof useAppStore>['profile'], prov
   }
 }
 
-function setProviderKey(provider: AIProvider, value: string): Partial<ReturnType<typeof useAppStore>['profile']> {
+function setProviderKey(provider: AIProvider, value: string): Partial<UserProfile> {
   switch (provider) {
     case 'openai': return { openai_api_key: value }
     case 'gemini': return { gemini_api_key: value }
