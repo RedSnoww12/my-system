@@ -8,6 +8,7 @@ export async function GET(request: Request) {
   if (code) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
+    console.log("Auth callback - code:", code, "error:", error);
     if (!error) {
       // Check if user has completed onboarding
       return NextResponse.redirect(`${origin}/onboarding`);
