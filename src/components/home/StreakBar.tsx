@@ -5,7 +5,7 @@ interface Props {
 export default function StreakBar({ streak }: Props) {
   if (streak < 2) return null;
   return (
-    <div className="streak-bar" style={{ display: 'flex' }}>
+    <div className="streak-bar">
       <div className="sk-l">
         <span className="sf">🔥</span>
         <span>

@@ -50,21 +50,21 @@ export default function MealDayHero({ totals, targets }: Props) {
       </div>
       <div className="meal-bento-m">
         <span className="meal-bento-l">Gluc</span>
-        <span className="meal-bento-m-v" style={{ color: '#4DD0E1' }}>
+        <span className="meal-bento-m-v" style={{ color: 'var(--cyan)' }}>
           {Math.round(totals.g)}
           <span className="meal-bento-m-u">g</span>
         </span>
       </div>
       <div className="meal-bento-m">
         <span className="meal-bento-l">Lip</span>
-        <span className="meal-bento-m-v" style={{ color: '#FF6B9D' }}>
+        <span className="meal-bento-m-v" style={{ color: 'var(--pnk)' }}>
           {Math.round(totals.l)}
           <span className="meal-bento-m-u">g</span>
         </span>
       </div>
       <div className="meal-bento-m">
         <span className="meal-bento-l">Fib</span>
-        <span className="meal-bento-m-v" style={{ color: '#FFB347' }}>
+        <span className="meal-bento-m-v" style={{ color: 'var(--org)' }}>
           {Math.round(totals.f ?? 0)}
           <span className="meal-bento-m-u">g</span>
         </span>

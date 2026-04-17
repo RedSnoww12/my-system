@@ -100,7 +100,10 @@ export default function StatsPage() {
         <div className="stat-card-head">
           <div className="stat-card-title">
             <h3>
-              <span className="stat-dot" style={{ background: '#4DD0E1' }} />
+              <span
+                className="stat-dot"
+                style={{ background: 'var(--cyan)' }}
+              />
               Tendance palier
             </h3>
           </div>
@@ -112,7 +115,7 @@ export default function StatsPage() {
         <div className="stat-card-head">
           <div className="stat-card-title">
             <h3>
-              <span className="stat-dot" style={{ background: '#FFD93D' }} />
+              <span className="stat-dot" style={{ background: 'var(--yel)' }} />
               Tendance phase
             </h3>
           </div>
@@ -124,7 +127,7 @@ export default function StatsPage() {
         <div className="stat-card-head">
           <div className="stat-card-title">
             <h3>
-              <span className="stat-dot" style={{ background: '#FFB347' }} />
+              <span className="stat-dot" style={{ background: 'var(--org)' }} />
               Bilan calorique
             </h3>
             <p>Target vs réel kcal</p>
@@ -169,7 +172,7 @@ export default function StatsPage() {
         <div className="stat-card-head">
           <div className="stat-card-title">
             <h3>
-              <span className="stat-dot" style={{ background: '#6AEFAF' }} />
+              <span className="stat-dot" style={{ background: 'var(--grn)' }} />
               Protéines
             </h3>
             <p>7 derniers jours</p>
@@ -184,7 +187,7 @@ export default function StatsPage() {
         <div className="stat-card-head">
           <div className="stat-card-title">
             <h3>
-              <span className="stat-dot" style={{ background: '#FF6B9D' }} />
+              <span className="stat-dot" style={{ background: 'var(--pnk)' }} />
               Analyse poids
             </h3>
             <p>Trend 72 jours</p>

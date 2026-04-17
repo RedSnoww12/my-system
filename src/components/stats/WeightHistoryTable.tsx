@@ -24,7 +24,7 @@ function buildRows(
     .map((entry, idx) => {
       const phase = entry.phase ?? fallbackPhase;
       const phaseColor =
-        PHASE_COLORS[phase as keyof typeof PHASE_COLORS] ?? '#6AEFAF';
+        PHASE_COLORS[phase as keyof typeof PHASE_COLORS] ?? 'var(--acc)';
 
       let trendIcon: string = 'trending_flat';
       let trendClass: TrendClass = 'flat';

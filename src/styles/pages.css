@@ -3698,3 +3698,25 @@
   letter-spacing: 0.08em;
   font-family: 'JetBrains Mono', monospace;
 }
+
+/* ── V2 React additions ─────────────────────────────── */
+
+/* Meal entries list wrapper (remplace #mC du legacy) */
+.meal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Stats empty state (chart sans données) */
+.stat-chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  color: var(--t3);
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}

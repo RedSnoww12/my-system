@@ -254,10 +254,10 @@ function AiResult({
           }}
         >
           {[
-            { l: 'Prot', v: prot, c: '#6AEFAF' },
-            { l: 'Gluc', v: gluc, c: '#4DD0E1' },
-            { l: 'Lip', v: lip, c: '#FF6B9D' },
-            { l: 'Fib', v: fib, c: '#FFB347' },
+            { l: 'Prot', v: prot, c: 'var(--grn)' },
+            { l: 'Gluc', v: gluc, c: 'var(--cyan)' },
+            { l: 'Lip', v: lip, c: 'var(--pnk)' },
+            { l: 'Fib', v: fib, c: 'var(--org)' },
           ].map((m) => (
             <div
               key={m.l}
