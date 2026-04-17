@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import WeightQuickAdd from '@/components/stats/WeightQuickAdd';
 import WeightStatsGrid from '@/components/stats/WeightStatsGrid';
 import WeightChart from '@/components/charts/WeightChart';
 import PalierChart from '@/components/charts/PalierChart';
@@ -72,7 +71,6 @@ export default function StatsPage() {
         <p>Biometric data stream · analyse de tendance</p>
       </section>
 
-      <WeightQuickAdd />
       <WeightStatsGrid />
 
       <section className="stat-card stat-card-big">

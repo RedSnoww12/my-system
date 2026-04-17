@@ -1,6 +1,7 @@
 import AccountCard from '@/components/settings/AccountCard';
 import AiKeyCard from '@/components/settings/AiKeyCard';
 import DataCard from '@/components/settings/DataCard';
+import ImportCard from '@/components/settings/ImportCard';
 import PhaseCard from '@/components/settings/PhaseCard';
 import ProfileCard from '@/components/settings/ProfileCard';
 import TargetsCard from '@/components/settings/TargetsCard';
@@ -22,6 +23,7 @@ export default function SettingsPage() {
       <PhaseCard />
       <ThemeCard />
       <AiKeyCard />
+      <ImportCard />
       <DataCard />
     </div>
   );
