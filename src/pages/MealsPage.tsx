@@ -7,6 +7,9 @@ import QuickPicks from '@/components/meals/QuickPicks';
 import QuantityModal from '@/components/meals/QuantityModal';
 import ManualEntryModal from '@/components/meals/ManualEntryModal';
 import MealEntriesList from '@/components/meals/MealEntriesList';
+import ScannerModal from '@/features/scanner/ScannerModal';
+import AIAnalysisModal from '@/features/ai/AIAnalysisModal';
+import type { AiMealResult } from '@/features/ai/groqClient';
 import { dayTotals } from '@/features/nutrition/totals';
 import {
   applyQtyChange,
@@ -28,6 +31,8 @@ export default function MealsPage() {
   const [slot, setSlot] = useState<MealSlot>(0);
   const [editing, setEditing] = useState<EditingState | null>(null);
   const [manualOpen, setManualOpen] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
 
   const targets = useSettingsStore((s) => s.targets);
   const log = useNutritionStore((s) => s.log);
@@ -74,6 +79,22 @@ export default function MealsPage() {
     toast('Aliment retiré', 'info');
   };
 
+  const handleAiConfirm = (result: AiMealResult) => {
+    const entry: MealEntry = {
+      id: Date.now(),
+      food: result.nom || 'Repas IA',
+      qty: 0,
+      kcal: Math.round(result.kcal),
+      p: Math.round(result.prot),
+      g: Math.round(result.gluc),
+      l: Math.round(result.lip),
+      f: Math.round(result.fib),
+      meal: slot,
+    };
+    addMealEntry(date, entry);
+    toast(`${entry.food} ajouté`, 'success');
+  };
+
   const handleManualAdd = (data: {
     name: string;
     kcal: number;
@@ -103,11 +124,29 @@ export default function MealsPage() {
       <DateNavigator date={date} onChange={setDate} />
       <MealDayHero totals={totals} targets={targets} />
 
-      <section className="meal-search-row">
+      <section className="meal-search-row" style={{ display: 'flex', gap: 8 }}>
         <FoodSearchBar onSelect={handleSelectFood} />
+        <button
+          type="button"
+          className="meal-icon-btn"
+          aria-label="Scanner code-barres"
+          onClick={() => setScannerOpen(true)}
+        >
+          <span className="material-symbols-outlined">barcode_scanner</span>
+        </button>
       </section>
 
       <section className="meal-chips">
+        <button
+          type="button"
+          className="meal-chip"
+          onClick={() => setAiOpen(true)}
+        >
+          <span className="material-symbols-outlined meal-chip-ico chip-ai">
+            auto_awesome
+          </span>
+          <span>Analyse IA</span>
+        </button>
         <button
           type="button"
           className="meal-chip"
@@ -152,6 +191,20 @@ export default function MealsPage() {
         slot={slot}
         onClose={() => setManualOpen(false)}
         onConfirm={handleManualAdd}
+      />
+
+      <ScannerModal
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onProductResolved={(name, tuple) => {
+          setEditing({ mode: 'create', food: name, tuple });
+        }}
+      />
+
+      <AIAnalysisModal
+        open={aiOpen}
+        onClose={() => setAiOpen(false)}
+        onConfirm={handleAiConfirm}
       />
     </div>
   );
