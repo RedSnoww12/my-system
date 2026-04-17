@@ -1,15 +1,6 @@
 import { useMemo } from 'react';
-import { Doughnut } from 'react-chartjs-2';
-import {
-  ArcElement,
-  Chart as ChartJS,
-  Tooltip,
-  type ChartOptions,
-} from 'chart.js';
+import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import { useTweenInt } from '@/hooks/useTween';
-import { useSettingsStore } from '@/store/useSettingsStore';
-
-ChartJS.register(ArcElement, Tooltip);
 
 interface Props {
   consumed: number;
@@ -17,60 +8,52 @@ interface Props {
 }
 
 export default function CalorieRing({ consumed, target }: Props) {
-  const theme = useSettingsStore((s) => s.theme);
-
   const remaining = Math.max(0, Math.round(target - consumed));
   const valueRef = useTweenInt<HTMLDivElement>(remaining, 520);
 
-  const { chartData, chartOptions, overTarget } = useMemo(() => {
+  const { data, ringFg, overTarget } = useMemo(() => {
     const pct = target
       ? Math.min(100, Math.round((consumed / target) * 100))
       : 0;
     const over = consumed > target;
 
-    const ringBg = theme === 'light' ? '#DFE2EA' : '#1F1F24';
-    const ringFg = over
-      ? '#FF6B6B'
-      : pct > 85
-        ? '#FFB347'
-        : theme === 'light'
-          ? '#2DB77B'
-          : '#6AEFAF';
-
-    const data = over ? [100, 0] : [pct, 100 - pct];
-
-    const options: ChartOptions<'doughnut'> = {
-      responsive: true,
-      maintainAspectRatio: true,
-      cutout: '88%',
-      plugins: {
-        legend: { display: false },
-        tooltip: { enabled: false },
-      },
-      animation: { duration: 700, easing: 'easeOutCubic' },
-      events: [],
-    };
+    const fg = over ? 'var(--red)' : pct > 85 ? 'var(--org)' : 'var(--grn)';
+    const bg = 'var(--l1)';
 
     return {
       overTarget: over,
-      chartData: {
-        datasets: [
-          {
-            data,
-            backgroundColor: [ringFg, ringBg],
-            borderWidth: 0,
-            borderRadius: 999,
-          },
-        ],
-      },
-      chartOptions: options,
+      ringFg: fg,
+      data: over
+        ? [{ v: 100, fill: fg }]
+        : [
+            { v: pct, fill: fg },
+            { v: 100 - pct, fill: bg },
+          ],
     };
-  }, [consumed, target, theme]);
+  }, [consumed, target]);
 
   return (
     <section className="cal-hero">
       <div className="cal-ring">
-        <Doughnut data={chartData} options={chartOptions} />
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={data}
+              dataKey="v"
+              innerRadius="88%"
+              outerRadius="100%"
+              startAngle={90}
+              endAngle={-270}
+              strokeWidth={0}
+              isAnimationActive
+              cornerRadius={999}
+            >
+              {data.map((d, i) => (
+                <Cell key={i} fill={d.fill} />
+              ))}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
         <div className="cal-ctr">
           <div
             ref={valueRef}
@@ -80,7 +63,7 @@ export default function CalorieRing({ consumed, target }: Props) {
             {remaining}
           </div>
           <div className="cl">Restantes (kcal)</div>
-          <div className="cs">
+          <div className="cs" style={{ color: ringFg }}>
             {Math.round(consumed)} / {target} kcal
           </div>
         </div>

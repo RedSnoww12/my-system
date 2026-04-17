@@ -1,4 +1,3 @@
-import type { ChartData } from 'chart.js';
 import type { LogByDate } from '@/types';
 import { formatShortDate } from '@/lib/date';
 import { dayTotals } from '@/features/nutrition/totals';
@@ -21,6 +20,28 @@ export interface MacroAverages {
   lPct: number;
 }
 
+export interface MacroDonutSlice {
+  key: 'p' | 'g' | 'l';
+  label: string;
+  value: number;
+  color: string;
+}
+
+export interface MacroDonutResult {
+  slices: MacroDonutSlice[];
+  averages: MacroAverages;
+}
+
+export interface ProteinChartPoint {
+  label: string;
+  protein: number;
+  target: number;
+}
+
+export interface ProteinChartResult {
+  points: ProteinChartPoint[];
+}
+
 function listDates(n: number, today: string): string[] {
   const out: string[] = [];
   const base = Date.parse(today);
@@ -34,11 +55,6 @@ interface MacroDonutArgs {
   log: LogByDate;
   today: string;
   range: MacroRange;
-}
-
-export interface MacroDonutResult {
-  data: ChartData<'doughnut'>;
-  averages: MacroAverages;
 }
 
 export function buildMacroDonut({
@@ -72,29 +88,19 @@ export function buildMacroDonut({
     lPct: pct(lAvg),
   };
 
-  return {
-    averages,
-    data: {
-      labels: ['Prot', 'Gluc', 'Lip'],
-      datasets: [
-        {
-          data: [averages.p, averages.g, averages.l],
-          backgroundColor: [MACRO_COLORS.p, MACRO_COLORS.g, MACRO_COLORS.l],
-          borderWidth: 0,
-        },
-      ],
-    },
-  };
+  const slices: MacroDonutSlice[] = [
+    { key: 'p', label: 'Prot', value: averages.p, color: MACRO_COLORS.p },
+    { key: 'g', label: 'Gluc', value: averages.g, color: MACRO_COLORS.g },
+    { key: 'l', label: 'Lip', value: averages.l, color: MACRO_COLORS.l },
+  ];
+
+  return { averages, slices };
 }
 
 interface ProteinArgs {
   log: LogByDate;
   today: string;
   targetProtein: number;
-}
-
-export interface ProteinChartResult {
-  data: ChartData<'bar'>;
 }
 
 export function buildProteinChart({
@@ -105,26 +111,10 @@ export function buildProteinChart({
   const dates = listDates(7, today);
   const totals = dates.map((d) => dayTotals(log, d));
   return {
-    data: {
-      labels: dates.map(formatShortDate),
-      datasets: [
-        {
-          type: 'bar',
-          data: totals.map((t) => Math.round(t.p)),
-          backgroundColor: 'rgba(106, 239, 175, .55)',
-          borderRadius: 6,
-          borderSkipped: false,
-        },
-        {
-          type: 'line' as unknown as 'bar',
-          data: dates.map(() => targetProtein),
-          borderColor: 'rgba(255, 179, 71, .5)',
-          borderDash: [5, 5],
-          pointRadius: 0,
-          borderWidth: 2,
-          fill: false,
-        } as unknown as ChartData<'bar'>['datasets'][number],
-      ],
-    },
+    points: dates.map((date, i) => ({
+      label: formatShortDate(date),
+      protein: Math.round(totals[i].p),
+      target: targetProtein,
+    })),
   };
 }

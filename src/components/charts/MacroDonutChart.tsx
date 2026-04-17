@@ -1,18 +1,11 @@
 import { useMemo } from 'react';
-import { Doughnut } from 'react-chartjs-2';
-import {
-  baseDoughnutOptions,
-  ensureChartJsRegistered,
-} from '@/features/analysis/charts/chartDefaults';
+import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import {
   buildMacroDonut,
-  type MacroDonutResult,
   type MacroRange,
 } from '@/features/analysis/charts/macroAverages';
 import { todayISO } from '@/lib/date';
 import { useNutritionStore } from '@/store/useNutritionStore';
-
-ensureChartJsRegistered();
 
 interface Props {
   range: MacroRange;
@@ -22,12 +15,33 @@ export default function MacroDonutChart({ range }: Props) {
   const log = useNutritionStore((s) => s.log);
   const today = todayISO();
 
-  const built: MacroDonutResult = useMemo(
+  const built = useMemo(
     () => buildMacroDonut({ log, today, range }),
     [log, today, range],
   );
 
-  const options = useMemo(() => baseDoughnutOptions(), []);
+  const hasData = built.slices.some((s) => s.value > 0);
+  const data = hasData
+    ? built.slices
+    : [{ key: 'empty', value: 1, color: 'var(--l1)' }];
 
-  return <Doughnut data={built.data} options={options} />;
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <PieChart>
+        <Pie
+          data={data}
+          dataKey="value"
+          nameKey="label"
+          innerRadius="62%"
+          outerRadius="100%"
+          strokeWidth={0}
+          isAnimationActive={false}
+        >
+          {data.map((slice, i) => (
+            <Cell key={i} fill={slice.color} />
+          ))}
+        </Pie>
+      </PieChart>
+    </ResponsiveContainer>
+  );
 }

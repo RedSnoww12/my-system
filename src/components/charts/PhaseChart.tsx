@@ -1,16 +1,37 @@
 import { useMemo } from 'react';
-import { Line } from 'react-chartjs-2';
 import {
-  baseLineOptions,
-  ensureChartJsRegistered,
+  CartesianGrid,
+  Dot,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import {
+  CHART_TOKENS,
+  MONO_FONT,
 } from '@/features/analysis/charts/chartDefaults';
-import { buildPhaseChartData } from '@/features/analysis/charts/phaseChartData';
+import {
+  buildPhaseChartData,
+  type PhaseChartPoint,
+} from '@/features/analysis/charts/phaseChartData';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { useTrackingStore } from '@/store/useTrackingStore';
 
-ensureChartJsRegistered();
-
 const MS_PER_DAY = 86_400_000;
+
+interface ColoredDotProps {
+  cx?: number;
+  cy?: number;
+  payload?: PhaseChartPoint;
+}
+
+function ColoredDot({ cx, cy, payload }: ColoredDotProps) {
+  if (cx === undefined || cy === undefined || !payload) return null;
+  return <Dot cx={cx} cy={cy} r={3} fill={payload.color} stroke="none" />;
+}
 
 export default function PhaseChart() {
   const weights = useTrackingStore((s) => s.weights);
@@ -21,33 +42,6 @@ export default function PhaseChart() {
     () => buildPhaseChartData({ weights, phase, currentKcal }),
     [weights, phase, currentKcal],
   );
-
-  const options = useMemo(() => {
-    if (!built) return baseLineOptions();
-    return baseLineOptions({
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: built.tooltipLabel } },
-      },
-      scales: {
-        x: {
-          ticks: {
-            color: '#5A5E6B',
-            font: { family: 'JetBrains Mono', size: 8 },
-            maxTicksLimit: 7,
-          },
-          grid: { display: false },
-        },
-        y: {
-          ticks: {
-            color: '#5A5E6B',
-            font: { family: 'JetBrains Mono', size: 8 },
-          },
-          grid: { color: 'rgba(42, 43, 49, .5)' },
-        },
-      },
-    });
-  }, [built]);
 
   if (!built) {
     return (
@@ -74,7 +68,68 @@ export default function PhaseChart() {
         palier{plural}
       </p>
       <div className="stat-chart-wrap" style={{ height: 160 }}>
-        <Line data={built.data} options={options} />
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={built.points}
+            margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+          >
+            <CartesianGrid
+              stroke={CHART_TOKENS.gridMute}
+              strokeDasharray="3 3"
+              vertical={false}
+            />
+            <XAxis
+              dataKey="label"
+              stroke={CHART_TOKENS.tickMute}
+              tick={{ ...MONO_FONT, fill: CHART_TOKENS.tickMute }}
+              interval="preserveStartEnd"
+              tickLine={false}
+              axisLine={false}
+            />
+            <YAxis
+              stroke={CHART_TOKENS.tickMute}
+              tick={{ ...MONO_FONT, fill: CHART_TOKENS.tickMute }}
+              tickLine={false}
+              axisLine={false}
+              domain={['dataMin - 0.5', 'dataMax + 0.5']}
+              width={32}
+            />
+            <Tooltip
+              contentStyle={{
+                background: 'var(--b2)',
+                border: '1px solid var(--l1)',
+                borderRadius: 8,
+                ...MONO_FONT,
+              }}
+              labelStyle={{ color: 'var(--t2)' }}
+              formatter={(value, name, item) => {
+                const p = (item as { payload?: PhaseChartPoint })?.payload;
+                const suffix = p?.tgKcal ? ` (${p.tgKcal} kcal)` : '';
+                return [`${value} kg${suffix}`, name];
+              }}
+            />
+            <Line
+              type="monotone"
+              dataKey="weight"
+              name="Poids"
+              stroke={CHART_TOKENS.yellow}
+              strokeWidth={2}
+              dot={<ColoredDot />}
+              isAnimationActive={false}
+            />
+            <Line
+              type="linear"
+              dataKey="regression"
+              name="Régression"
+              stroke={CHART_TOKENS.yellow}
+              strokeOpacity={0.55}
+              strokeDasharray="5 4"
+              strokeWidth={1.5}
+              dot={false}
+              isAnimationActive={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </>
   );

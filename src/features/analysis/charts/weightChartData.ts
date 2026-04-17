@@ -1,7 +1,5 @@
-import type { ChartData } from 'chart.js';
 import type { WeightEntry } from '@/types';
 import { formatShortDate } from '@/lib/date';
-import { CHART_COLORS } from './chartDefaults';
 import { ema } from './ema';
 
 export const WEIGHT_RANGES = [
@@ -13,6 +11,20 @@ export const WEIGHT_RANGES = [
 ] as const;
 
 export type WeightRange = (typeof WEIGHT_RANGES)[number]['value'];
+
+export interface WeightChartPoint {
+  label: string;
+  weight: number;
+  ema?: number;
+  goal?: number;
+}
+
+export interface WeightChartResult {
+  points: WeightChartPoint[];
+  hasEma: boolean;
+  hasGoal: boolean;
+  dense: boolean;
+}
 
 export function sliceWeights(
   weights: readonly WeightEntry[],
@@ -32,53 +44,23 @@ export function buildWeightChartData({
   weights,
   range,
   goalWeight,
-}: BuildArgs): ChartData<'line'> | null {
+}: BuildArgs): WeightChartResult | null {
   const slice = sliceWeights(weights, range);
   if (slice.length === 0) return null;
 
   const values = slice.map((w) => w.w);
-  const labels = slice.map((w) => formatShortDate(w.date));
+  const hasEma = slice.length >= 3;
+  const smoothed = hasEma
+    ? ema(values, Math.min(7, slice.length)).map((v) => +v.toFixed(1))
+    : [];
+  const hasGoal = goalWeight > 0;
 
-  const datasets: ChartData<'line'>['datasets'] = [
-    {
-      label: 'Poids',
-      data: values,
-      borderColor: CHART_COLORS.primary,
-      backgroundColor: 'rgba(106, 239, 175, .08)',
-      fill: true,
-      tension: 0.35,
-      pointRadius: slice.length > 60 ? 1 : 3,
-      pointBackgroundColor: CHART_COLORS.primary,
-      borderWidth: 2.5,
-    },
-  ];
+  const points: WeightChartPoint[] = slice.map((entry, i) => ({
+    label: formatShortDate(entry.date),
+    weight: entry.w,
+    ema: hasEma ? smoothed[i] : undefined,
+    goal: hasGoal ? goalWeight : undefined,
+  }));
 
-  if (slice.length >= 3) {
-    const smoothed = ema(values, Math.min(7, slice.length)).map(
-      (v) => +v.toFixed(1),
-    );
-    datasets.push({
-      label: 'Tendance (EMA)',
-      data: smoothed,
-      borderColor: CHART_COLORS.orange,
-      borderWidth: 2,
-      pointRadius: 0,
-      tension: 0.4,
-      fill: false,
-    });
-  }
-
-  if (goalWeight > 0) {
-    datasets.push({
-      label: 'Objectif',
-      data: slice.map(() => goalWeight),
-      borderColor: 'rgba(255, 179, 71, .5)',
-      borderDash: [6, 4],
-      pointRadius: 0,
-      borderWidth: 1.5,
-      fill: false,
-    });
-  }
-
-  return { labels, datasets };
+  return { points, hasEma, hasGoal, dense: slice.length > 60 };
 }

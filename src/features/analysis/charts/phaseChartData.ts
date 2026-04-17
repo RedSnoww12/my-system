@@ -1,17 +1,16 @@
-import type { ChartData, TooltipItem } from 'chart.js';
 import type { Phase, WeightEntry } from '@/types';
 import { formatShortDate } from '@/lib/date';
 import { linReg, type LinRegPoint } from '../trend';
-import { CHART_COLORS } from './chartDefaults';
+import { CHART_TOKENS } from './chartDefaults';
 
 const MS_PER_DAY = 86_400_000;
 const PALETTE = [
-  CHART_COLORS.yellow,
-  CHART_COLORS.pink,
-  CHART_COLORS.purple,
-  CHART_COLORS.primary,
-  CHART_COLORS.orange,
-  CHART_COLORS.cyan,
+  CHART_TOKENS.yellow,
+  CHART_TOKENS.pink,
+  CHART_TOKENS.purple,
+  CHART_TOKENS.primary,
+  CHART_TOKENS.orange,
+  CHART_TOKENS.cyan,
 ];
 
 interface EnrichedPoint {
@@ -20,9 +19,16 @@ interface EnrichedPoint {
   tgKcal: number;
 }
 
+export interface PhaseChartPoint {
+  label: string;
+  weight: number;
+  regression: number;
+  tgKcal: number;
+  color: string;
+}
+
 export interface PhaseChartResult {
-  data: ChartData<'line'>;
-  tooltipLabel: (ctx: TooltipItem<'line'>) => string;
+  points: PhaseChartPoint[];
   rate: number;
   r2: number;
   startDate: string;
@@ -67,14 +73,18 @@ export function buildPhaseChartData({
     y: pt.w,
   }));
   const lr = linReg(regPoints);
-  const regressionLine = regPoints.map(
-    (pt) => +(lr.slope * pt.x + lr.intercept).toFixed(2),
-  );
 
   const kcalLevels = Array.from(new Set(pts.map((e) => e.tgKcal)));
   const colorFor = (k: number): string =>
     PALETTE[kcalLevels.indexOf(k) % PALETTE.length];
-  const pointColors = pts.map((e) => colorFor(e.tgKcal));
+
+  const points: PhaseChartPoint[] = pts.map((pt, i) => ({
+    label: formatShortDate(pt.date),
+    weight: pt.w,
+    regression: +(lr.slope * regPoints[i].x + lr.intercept).toFixed(2),
+    tgKcal: pt.tgKcal,
+    color: colorFor(pt.tgKcal),
+  }));
 
   return {
     rate: +(lr.slope * 7).toFixed(2),
@@ -84,36 +94,6 @@ export function buildPhaseChartData({
     totalChange: +(pts[pts.length - 1].w - pts[0].w).toFixed(1),
     sampleCount: pts.length,
     kcalLevels,
-    tooltipLabel: (ctx) => {
-      const point = pts[ctx.dataIndex];
-      const suffix = point?.tgKcal ? ` (${point.tgKcal} kcal)` : '';
-      return `${ctx.dataset.label}: ${ctx.parsed.y} kg${suffix}`;
-    },
-    data: {
-      labels: pts.map((pt) => formatShortDate(pt.date)),
-      datasets: [
-        {
-          label: 'Poids',
-          data: pts.map((pt) => pt.w),
-          borderColor: CHART_COLORS.yellow,
-          backgroundColor: 'rgba(255, 217, 61, .06)',
-          fill: true,
-          tension: 0.25,
-          pointRadius: 3,
-          pointBackgroundColor: pointColors,
-          pointBorderColor: pointColors,
-          borderWidth: 2,
-        },
-        {
-          label: 'Régression',
-          data: regressionLine,
-          borderColor: 'rgba(255, 217, 61, .55)',
-          borderDash: [5, 4],
-          pointRadius: 0,
-          borderWidth: 1.5,
-          fill: false,
-        },
-      ],
-    },
+    points,
   };
 }

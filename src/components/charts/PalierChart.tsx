@@ -1,8 +1,16 @@
 import { useMemo } from 'react';
-import { Line } from 'react-chartjs-2';
 import {
-  baseLineOptions,
-  ensureChartJsRegistered,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import {
+  CHART_TOKENS,
+  MONO_FONT,
 } from '@/features/analysis/charts/chartDefaults';
 import { buildPalierChartData } from '@/features/analysis/charts/palierChartData';
 import { palierDays } from '@/features/analysis/palier';
@@ -12,8 +20,6 @@ import { usePalierStore } from '@/store/usePalierStore';
 import { useTrackingStore } from '@/store/useTrackingStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { useNutritionStore } from '@/store/useNutritionStore';
-
-ensureChartJsRegistered();
 
 export default function PalierChart() {
   const weights = useTrackingStore((s) => s.weights);
@@ -38,45 +44,8 @@ export default function PalierChart() {
       today,
     });
     const confidence = tr?.confidence ?? 'low';
-    return {
-      kind: 'ready' as const,
-      built,
-      days,
-      confidence,
-    };
+    return { kind: 'ready' as const, built, days, confidence };
   }, [weights, palier, targets.kcal, phase, log, today]);
-
-  const options = useMemo(
-    () =>
-      baseLineOptions({
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y} kg`,
-            },
-          },
-        },
-        scales: {
-          x: {
-            ticks: {
-              color: '#5A5E6B',
-              font: { family: 'JetBrains Mono', size: 8 },
-              maxTicksLimit: 6,
-            },
-            grid: { display: false },
-          },
-          y: {
-            ticks: {
-              color: '#5A5E6B',
-              font: { family: 'JetBrains Mono', size: 8 },
-            },
-            grid: { color: 'rgba(42, 43, 49, .5)' },
-          },
-        },
-      }),
-    [],
-  );
 
   if (!palier || !payload) {
     return (
@@ -96,6 +65,7 @@ export default function PalierChart() {
   }
 
   const { built, days, confidence } = payload;
+
   return (
     <>
       <p className="stat-meta">
@@ -104,7 +74,64 @@ export default function PalierChart() {
         {built.rate} kg/sem · conf {confidence} · R² {built.r2}
       </p>
       <div className="stat-chart-wrap" style={{ height: 160 }}>
-        <Line data={built.data} options={options} />
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={built.points}
+            margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+          >
+            <CartesianGrid
+              stroke={CHART_TOKENS.gridMute}
+              strokeDasharray="3 3"
+              vertical={false}
+            />
+            <XAxis
+              dataKey="label"
+              stroke={CHART_TOKENS.tickMute}
+              tick={{ ...MONO_FONT, fill: CHART_TOKENS.tickMute }}
+              interval="preserveStartEnd"
+              tickLine={false}
+              axisLine={false}
+            />
+            <YAxis
+              stroke={CHART_TOKENS.tickMute}
+              tick={{ ...MONO_FONT, fill: CHART_TOKENS.tickMute }}
+              tickLine={false}
+              axisLine={false}
+              domain={['dataMin - 0.5', 'dataMax + 0.5']}
+              width={32}
+            />
+            <Tooltip
+              contentStyle={{
+                background: 'var(--b2)',
+                border: '1px solid var(--l1)',
+                borderRadius: 8,
+                ...MONO_FONT,
+              }}
+              labelStyle={{ color: 'var(--t2)' }}
+              formatter={(value, name) => [`${value} kg`, name]}
+            />
+            <Line
+              type="monotone"
+              dataKey="weight"
+              name="Poids"
+              stroke={CHART_TOKENS.cyan}
+              strokeWidth={2.2}
+              dot={{ r: 3, fill: CHART_TOKENS.cyan, strokeWidth: 0 }}
+              isAnimationActive={false}
+            />
+            <Line
+              type="linear"
+              dataKey="regression"
+              name="Régression"
+              stroke={CHART_TOKENS.cyan}
+              strokeOpacity={0.6}
+              strokeDasharray="5 4"
+              strokeWidth={1.5}
+              dot={false}
+              isAnimationActive={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </>
   );

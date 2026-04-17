@@ -1,9 +1,7 @@
-import type { ChartData } from 'chart.js';
 import type { LogByDate, WeightEntry } from '@/types';
 import { formatShortDate } from '@/lib/date';
 import { dayTotals } from '@/features/nutrition/totals';
 import { targetForDate } from '../palier';
-import { CHART_COLORS } from './chartDefaults';
 
 export const CALORIE_RANGES = [
   { label: '7j', value: 7 },
@@ -31,8 +29,17 @@ export interface CalorieSummary {
   trackedDays: number;
 }
 
+export type KcalBarStatus = 'empty' | 'over' | 'under';
+
+export interface KcalChartPoint {
+  label: string;
+  kcal: number;
+  target: number;
+  status: KcalBarStatus;
+}
+
 export interface CalorieBalanceResult {
-  data: ChartData<'bar'>;
+  points: KcalChartPoint[];
   summary: CalorieSummary;
 }
 
@@ -57,11 +64,18 @@ export function buildCalorieBalance({
     targetForDate(d, weights, currentKcal, today),
   );
 
-  const colors = totals.map((t, i) => {
-    if (t.kcal <= 0) return 'rgba(90, 94, 107, .2)';
-    return t.kcal > dayTargets[i]
-      ? 'rgba(255, 107, 107, .55)'
-      : 'rgba(106, 239, 175, .55)';
+  const points: KcalChartPoint[] = dates.map((date, i) => {
+    const kcal = Math.round(totals[i].kcal);
+    const target = dayTargets[i];
+    let status: KcalBarStatus = 'under';
+    if (kcal <= 0) status = 'empty';
+    else if (kcal > target) status = 'over';
+    return {
+      label: formatShortDate(date),
+      kcal,
+      target,
+      status,
+    };
   });
 
   const tracked = totals
@@ -85,35 +99,5 @@ export function buildCalorieBalance({
     trackedDays: tracked.length,
   };
 
-  const data: ChartData<'bar'> = {
-    labels: dates.map(formatShortDate),
-    datasets: [
-      {
-        type: 'bar',
-        data: totals.map((t) => Math.round(t.kcal)),
-        backgroundColor: colors,
-        borderRadius: 6,
-        borderSkipped: false,
-      },
-      {
-        type: 'line' as unknown as 'bar',
-        label: 'Objectif',
-        data: dayTargets,
-        borderColor: 'rgba(255, 179, 71, .6)',
-        borderDash: [5, 5],
-        pointRadius: 0,
-        borderWidth: 2,
-        fill: false,
-        stepped: true,
-      } as unknown as ChartData<'bar'>['datasets'][number],
-    ],
-  };
-
-  return { data, summary };
-}
-
-export function rateColor(value: number): string {
-  if (value > 0) return 'var(--grn)';
-  if (value < 0) return 'var(--red)';
-  return CHART_COLORS.primary;
+  return { points, summary };
 }

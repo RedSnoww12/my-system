@@ -1,9 +1,16 @@
 import { useMemo } from 'react';
-import { Line } from 'react-chartjs-2';
 import {
-  ensureChartJsRegistered,
-  baseLineOptions,
-  CHART_COLORS,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import {
+  CHART_TOKENS,
   MONO_FONT,
 } from '@/features/analysis/charts/chartDefaults';
 import {
@@ -18,44 +25,94 @@ interface Props {
   goalWeight: number;
 }
 
-ensureChartJsRegistered();
-
 export default function WeightChart({ weights, range, goalWeight }: Props) {
-  const data = useMemo(
+  const result = useMemo(
     () => buildWeightChartData({ weights, range, goalWeight }),
     [weights, range, goalWeight],
   );
 
-  const options = useMemo(
-    () =>
-      baseLineOptions({
-        plugins: {
-          legend: {
-            display: true,
-            position: 'bottom',
-            labels: {
-              color: CHART_COLORS.legendMute,
-              font: { ...MONO_FONT, size: 9 },
-              padding: 10,
-              usePointStyle: true,
-              pointStyleWidth: 8,
-            },
-          },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y} kg`,
-            },
-          },
-        },
-      }),
-    [],
-  );
-
-  if (!data) {
+  if (!result) {
     return (
       <div className="stat-chart-empty">Aucune pesée sur cette fenêtre</div>
     );
   }
 
-  return <Line data={data} options={options} />;
+  const dotSize = result.dense ? 0 : 3;
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart
+        data={result.points}
+        margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+      >
+        <CartesianGrid stroke={CHART_TOKENS.gridMute} strokeDasharray="3 3" />
+        <XAxis
+          dataKey="label"
+          stroke={CHART_TOKENS.tickMute}
+          tick={{ ...MONO_FONT, fill: CHART_TOKENS.tickMute }}
+          interval="preserveStartEnd"
+          tickLine={false}
+          axisLine={false}
+        />
+        <YAxis
+          stroke={CHART_TOKENS.tickMute}
+          tick={{ ...MONO_FONT, fill: CHART_TOKENS.tickMute }}
+          tickLine={false}
+          axisLine={false}
+          domain={['dataMin - 1', 'dataMax + 1']}
+          width={32}
+        />
+        <Tooltip
+          contentStyle={{
+            background: 'var(--b2)',
+            border: '1px solid var(--l1)',
+            borderRadius: 8,
+            ...MONO_FONT,
+          }}
+          labelStyle={{ color: 'var(--t2)' }}
+          formatter={(value, name) => [`${value} kg`, name]}
+        />
+        <Legend
+          verticalAlign="bottom"
+          iconType="circle"
+          iconSize={8}
+          wrapperStyle={{ ...MONO_FONT, color: CHART_TOKENS.tickMute }}
+        />
+        <Line
+          type="monotone"
+          dataKey="weight"
+          name="Poids"
+          stroke={CHART_TOKENS.primary}
+          strokeWidth={2.5}
+          dot={{ r: dotSize, fill: CHART_TOKENS.primary, strokeWidth: 0 }}
+          activeDot={{ r: 4 }}
+          isAnimationActive={false}
+        />
+        {result.hasEma && (
+          <Line
+            type="monotone"
+            dataKey="ema"
+            name="Tendance (EMA)"
+            stroke={CHART_TOKENS.orange}
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+          />
+        )}
+        {result.hasGoal && (
+          <Line
+            type="linear"
+            dataKey="goal"
+            name="Objectif"
+            stroke={CHART_TOKENS.orange}
+            strokeDasharray="6 4"
+            strokeOpacity={0.5}
+            strokeWidth={1.5}
+            dot={false}
+            isAnimationActive={false}
+          />
+        )}
+      </LineChart>
+    </ResponsiveContainer>
+  );
 }

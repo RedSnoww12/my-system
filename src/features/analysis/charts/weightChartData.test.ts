@@ -34,17 +34,19 @@ describe('weightChartData', () => {
     ).toBeNull();
   });
 
-  it('includes EMA dataset when >= 3 points', () => {
-    const data = buildWeightChartData({ weights, range: 9999, goalWeight: 70 });
-    expect(data).not.toBeNull();
-    expect(data?.datasets).toHaveLength(3);
-    expect(data?.datasets[1].label).toBe('Tendance (EMA)');
-    expect(data?.datasets[2].label).toBe('Objectif');
+  it('includes EMA and goal fields when conditions match', () => {
+    const res = buildWeightChartData({ weights, range: 9999, goalWeight: 70 });
+    expect(res).not.toBeNull();
+    expect(res?.hasEma).toBe(true);
+    expect(res?.hasGoal).toBe(true);
+    expect(res?.points[0].ema).toBeTypeOf('number');
+    expect(res?.points[0].goal).toBe(70);
   });
 
-  it('skips objective line when goalWeight is 0', () => {
-    const data = buildWeightChartData({ weights, range: 9999, goalWeight: 0 });
-    expect(data?.datasets).toHaveLength(2);
+  it('skips goal when goalWeight is 0', () => {
+    const res = buildWeightChartData({ weights, range: 9999, goalWeight: 0 });
+    expect(res?.hasGoal).toBe(false);
+    expect(res?.points[0].goal).toBeUndefined();
   });
 
   it('exposes a default range set', () => {

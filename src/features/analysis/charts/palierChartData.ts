@@ -1,13 +1,17 @@
-import type { ChartData } from 'chart.js';
 import type { Palier, WeightEntry } from '@/types';
 import { formatShortDate } from '@/lib/date';
 import { linReg, type LinRegPoint } from '../trend';
-import { CHART_COLORS } from './chartDefaults';
 
 const MS_PER_DAY = 86_400_000;
 
+export interface PalierChartPoint {
+  label: string;
+  weight: number;
+  regression: number;
+}
+
 export interface PalierChartResult {
-  data: ChartData<'line'>;
+  points: PalierChartPoint[];
   rate: number;
   r2: number;
   sampleCount: number;
@@ -43,38 +47,17 @@ export function buildPalierChartData({
     y: pt.w,
   }));
   const lr = linReg(regPoints);
-  const regressionLine = regPoints.map(
-    (pt) => +(lr.slope * pt.x + lr.intercept).toFixed(2),
-  );
+
+  const points: PalierChartPoint[] = slice.map((pt, i) => ({
+    label: formatShortDate(pt.date),
+    weight: pt.w,
+    regression: +(lr.slope * regPoints[i].x + lr.intercept).toFixed(2),
+  }));
 
   return {
     rate: +(lr.slope * 7).toFixed(2),
     r2: +lr.r2.toFixed(2),
     sampleCount: slice.length,
-    data: {
-      labels: slice.map((pt) => formatShortDate(pt.date)),
-      datasets: [
-        {
-          label: 'Poids',
-          data: slice.map((pt) => pt.w),
-          borderColor: CHART_COLORS.cyan,
-          backgroundColor: 'rgba(77, 208, 225, .08)',
-          fill: true,
-          tension: 0.3,
-          pointRadius: 3,
-          pointBackgroundColor: CHART_COLORS.cyan,
-          borderWidth: 2.2,
-        },
-        {
-          label: 'Régression',
-          data: regressionLine,
-          borderColor: 'rgba(77, 208, 225, .6)',
-          borderDash: [5, 4],
-          pointRadius: 0,
-          borderWidth: 1.5,
-          fill: false,
-        },
-      ],
-    },
+    points,
   };
 }
