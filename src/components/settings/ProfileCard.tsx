@@ -32,13 +32,16 @@ export default function ProfileCard() {
           />
         </div>
         <div className="set-f">
-          <label>Poids actuel</label>
-          <div className="set-kcal-wrap">
-            <span className="set-in set-in-num" style={{ opacity: 0.8 }}>
-              {latestWeight ?? '--'}
-            </span>
-            <span className="set-kcal-u">KG</span>
-          </div>
+          <label htmlFor="sW">Poids actuel (kg)</label>
+          <input
+            id="sW"
+            type="text"
+            className="set-in set-in-num"
+            value={latestWeight != null ? latestWeight : '—'}
+            readOnly
+            tabIndex={-1}
+            style={{ opacity: latestWeight != null ? 1 : 0.5 }}
+          />
         </div>
         <div className="set-f">
           <label htmlFor="sSt">Pas / jour</label>
