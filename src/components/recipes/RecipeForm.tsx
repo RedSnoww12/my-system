@@ -52,7 +52,10 @@ export default function RecipeForm() {
   return (
     <section className="rcp-form">
       <h2 className="rcp-form-l">Nouvelle recette</h2>
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}
+        style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+      >
         <div className="rcp-f">
           <label className="rcp-label" htmlFor="rcName">
             Nom de la recette

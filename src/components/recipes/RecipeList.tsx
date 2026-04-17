@@ -40,7 +40,7 @@ export default function RecipeList() {
           {names.length} {names.length === 1 ? 'RECETTE' : 'RECETTES'}
         </span>
       </div>
-      <div>
+      <div id="rcList">
         {names.map((name) => {
           const [kcal, p, g, l, f] = recipes[name];
           return (
