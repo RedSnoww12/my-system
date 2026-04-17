@@ -157,13 +157,31 @@ Template dans `.env.example`. Valeurs réelles dans `.env.local` (gitignored).
 - **Vitest** en mode jsdom + globals (`describe`, `it`, `expect` sans import).
 - Setup : `src/test/setup.ts` (importe `@testing-library/jest-dom/vitest`).
 - Colocaliser les tests : `foo.ts` ↔ `foo.test.ts` dans le même dossier.
-- **Priorité** : plomberie (storage, sync, trend, stores Zustand) > composants UI (snapshots fragiles).
+- **Priorité** : plomberie (storage, sync, trend, stores Zustand, pure data
+  adapters) > composants UI (snapshots fragiles).
+
+### Coverage actuelle (90 tests)
+
+| Module                                     | Tests | Couvre                                              |
+| ------------------------------------------ | ----- | --------------------------------------------------- |
+| `lib/storage`                              | 4     | load/save/remove, listener, SYNC_KEYS               |
+| `features/auth/cloudSync`                  | 4     | cloudSave, cloudLoad, mock Firestore                |
+| `features/analysis/palier`                 | 15    | compute, extend, days, timeline, target             |
+| `features/analysis/trend`                  | 16    | linReg, trend72, phaseTrend, weightStats, recommend |
+| `features/analysis/weightAnalysis`         | 7     | variance, rate message par phase                    |
+| `features/analysis/charts/ema`             | 4     | smoothing, edge cases                               |
+| `features/analysis/charts/weightChartData` | 6     | slicing, EMA, objectif                              |
+| `features/nutrition/foodSearch`            | 14    | search, accent-insensitive, compute, apply          |
+| `features/nutrition/totals`                | 8     | sum, group, streak, grace period                    |
+| `features/settings/tdeeCalc`               | 5     | BMR, activity, step bonus, phase mul                |
+| `features/settings/macroDistribution`      | 6     | %→g, breakdown, validation                          |
+| `store/useSettingsStore`                   | 4     | defaults, persist, rehydrate, onboarding            |
 
 ---
 
 ## 8. Styling
 
-- Les 4 CSS du legacy (`base`, `layout`, `pages`, `components`) sont importés dans `main.tsx` — **design system Kinetic Lab préservé**.
+- Les 5 CSS du legacy (`base`, `layout`, `pages`, `components`, `legal`) sont importés dans `main.tsx` — **design system Kinetic Lab préservé**.
 - Utiliser les classes CSS existantes (`btn btn-p`, `tp active`, `hdr`, `nav`…) plutôt que d'écrire du nouveau CSS.
 - Si besoin d'un style ponctuel : variables CSS (`var(--accG)`, `var(--s2)`…) inline, **pas** de nouvelle règle CSS sans raison.
 - Pas de CSS-in-JS, pas de Tailwind — cohérence avec le legacy.
@@ -198,6 +216,23 @@ Détails complets dans `README.md`. Règles à respecter en codant :
 4. **Primary accent** `#6AEFAF` en gradient 135°, jamais flat.
 5. **Jamais `#FFFFFF` pur** — utiliser `--t1` (`#F5F7FA`).
 6. **Safe-area** : respecter `env(safe-area-inset-*)` sur iOS.
+
+---
+
+## 10bis. Code splitting & perf
+
+- Pages **eager** (chemin critique) : `/`, `/auth`, `/onboarding` + `AppLayout`.
+- Pages **lazy** via `React.lazy` : Meals, Sport, Stats, Recipes, Settings,
+  Terms, Privacy. Fallback global : `<RouteFallback />` dans `<Suspense>`.
+- Vendors splittés via `build.rollupOptions.output.manualChunks` :
+  - `react` (React + Router)
+  - `firebase` (~108 KB gzip, chargé après login)
+  - `charts` (Chart.js + react-chartjs-2, chargé avec /stats)
+  - `zustand`
+- **Règle** : une nouvelle page lourde (charts, modales externes, vendors
+  > 20 KB) doit être lazy-loadée. Une page ≤ 10 KB peut rester eager.
+- **Ne jamais** importer `firebase/*` ou `chart.js` depuis `HomePage` — elles
+  sont sur le chemin critique.
 
 ---
 

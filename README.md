@@ -1,6 +1,8 @@
 # Kripy — Precision Lab
 
-Application web **mobile-first** de suivi nutritionnel, pondéral et sportif, pensée pour les personnes qui gèrent leur poids sur la durée et qui enchaînent plusieurs phases (sèche, prise de masse, reverse diet, reset…). 100 % statique, aucune installation, aucune dépendance à builder.
+![Status](https://img.shields.io/badge/status-V2%20stable-6AEFAF) ![Tests](https://img.shields.io/badge/tests-90%20passing-6AEFAF) ![Stack](https://img.shields.io/badge/React%2019-%2B%20Vite%206-4DD0E1) ![PWA](https://img.shields.io/badge/PWA-offline--first-FFB347)
+
+Application web **mobile-first** de suivi nutritionnel, pondéral et sportif, pensée pour les personnes qui gèrent leur poids sur la durée et qui enchaînent plusieurs phases (sèche, prise de masse, reverse diet, reset…). PWA installable, React + TypeScript + Firebase.
 
 > « Un seul outil pour manger, peser, bouger et comprendre où tu en es — sans se noyer dans les tableurs. »
 
@@ -214,31 +216,38 @@ La métrique principale (kcal restantes, poids, pace…) doit faire **3x la tail
 kripy/
 ├── public/icons/           # PWA icons (192, 512, maskable)
 ├── src/
-│   ├── app/                # main.tsx, App.tsx, routes.tsx
+│   ├── app/                # main.tsx, App.tsx, routes.tsx (lazy)
 │   ├── components/
-│   │   ├── ui/             # primitives (Button, Card, Dialog…)
-│   │   ├── layout/         # AppLayout, Header, BottomNav
-│   │   └── charts/         # wrappers react-chartjs-2
-│   ├── features/           # logique métier par domaine
-│   │   ├── auth/           # AuthScreen, useAuth, OnboardingForm
-│   │   ├── nutrition/      # meals, recipes, foods
-│   │   ├── tracking/       # weight, steps, water, workouts
-│   │   ├── analysis/       # trend 72j, recommandations, palier
-│   │   └── scanner/        # code-barres + OpenFoodFacts
-│   ├── pages/              # HomePage, MealsPage, SportPage…
-│   ├── store/              # Zustand stores (nutrition, tracking, settings)
-│   ├── hooks/              # useCloudSync, useStepUrlParam, useTheme
-│   ├── lib/
-│   │   ├── firebase.ts     # init SDK depuis VITE_FIREBASE_*
-│   │   ├── storage.ts      # STORAGE_KEYS + helpers typés
-│   │   └── date.ts         # helpers ISO / format
-│   ├── types/              # Macros, MealEntry, Phase, Targets…
-│   ├── data/               # foods.ts, constants.ts
-│   ├── styles/             # base.css, layout.css, pages.css, components.css
+│   │   ├── ui/             # Toast primitives
+│   │   ├── layout/         # AppLayout, Header, BottomNav, RouteFallback
+│   │   ├── charts/         # wrappers react-chartjs-2 (Weight/Palier/Phase/...)
+│   │   ├── stats/          # composants stats-specific (grids, analysis)
+│   │   ├── home/           # cards dashboard (Calorie, Macro, Water, Steps…)
+│   │   ├── meals/          # DateNavigator, FoodSearch, MealEntriesList…
+│   │   ├── sport/          # MuscuForm, OtherSportForm, WorkoutHistory
+│   │   ├── recipes/        # RecipeForm, RecipeList
+│   │   ├── settings/       # 8 cards modulaires (Profile, TDEE, Targets…)
+│   │   └── legal/          # LegalLayout
+│   ├── features/           # logique métier pure par domaine
+│   │   ├── auth/           # useAuth, cloudSync
+│   │   ├── nutrition/      # foodSearch, totals (+ tests)
+│   │   ├── analysis/       # trend, palier, weightAnalysis, charts/* (+ tests)
+│   │   ├── settings/       # tdeeCalc, macroDistribution (+ tests)
+│   │   ├── scanner/        # useBarcodeScanner, openFoodFacts, ScannerModal
+│   │   └── ai/             # groqClient, prompts, imageUtils, AIAnalysisModal
+│   ├── pages/              # HomePage (eager), Meals/Sport/Stats/... (lazy)
+│   ├── store/              # Zustand stores (session, settings, nutrition,
+│   │                       #   tracking, palier)
+│   ├── hooks/              # useCloudSync, useTween, useTheme, useStepUrlParam
+│   ├── lib/                # firebase, storage, date
+│   ├── types/              # analysis, nutrition, tracking, user, index
+│   ├── data/               # foods (~500 aliments), constants
+│   ├── styles/             # base, layout, pages, components, legal (CSS legacy)
 │   └── test/setup.ts       # jest-dom matchers pour Vitest
-├── legacy/                 # version vanilla de référence (non bundlée)
-├── index.html              # shell Vite, entry point /src/app/main.tsx
-├── vite.config.ts          # plugin React + PWA + alias @/ + Vitest
+├── legacy/                 # version vanilla de référence (scrubbed, non bundlée)
+├── index.html              # shell Vite, entry /src/app/main.tsx
+├── vite.config.ts          # React + PWA + alias @/ + manual chunks
+├── vitest.config.ts        # config tests séparée
 ├── tsconfig*.json          # TS strict bundler mode
 ├── eslint.config.js        # flat config
 ├── .env.example            # template VITE_FIREBASE_*
@@ -297,6 +306,34 @@ Le serveur Vite tourne sur [http://localhost:5173](http://localhost:5173) avec H
 ### Variables d'environnement
 
 Toutes les variables exposées au client doivent être préfixées `VITE_` (convention Vite). Elles sont documentées dans `.env.example`. Les clés Firebase Web SDK sont publiques par nature — la sécurité dépend des **règles Firestore**, pas du secret des clés.
+
+---
+
+## Performance & bundle
+
+- **Code splitting** : les pages lourdes (Stats, Settings, Recipes, Meals, pages légales) sont chargées en `React.lazy` avec fallback Suspense. Le chemin critique (`/` + auth + onboarding) reste eager.
+- **Manual chunks** dans `vite.config.ts` :
+
+| Chunk          | Poids (prod, gzip) | Contenu                                           |
+| -------------- | ------------------ | ------------------------------------------------- |
+| `index`        | ~73 KB             | Shell app + Home + stores                         |
+| `react`        | ~17 KB             | React, ReactDOM, React Router                     |
+| `firebase`     | ~108 KB            | Auth + Firestore modular SDK (chargé après login) |
+| `charts`       | ~61 KB             | Chart.js + react-chartjs-2 (chargé avec /stats)   |
+| `MealsPage`    | ~24 KB             | Incluant scanner + AI modals                      |
+| `StatsPage`    | ~9 KB              | Graphiques wrappers                               |
+| `SettingsPage` | ~5 KB              | Cards settings                                    |
+
+Bundle total précaché via service worker : ~1.1 MB (~320 KB gzip). Initial load ≤ 100 KB gzip sur route `/`.
+
+### Lighthouse
+
+```bash
+yarn build && yarn preview &
+# Chrome DevTools → Lighthouse → Mobile + Performance + PWA
+```
+
+Objectifs cibles : Performance ≥ 90, PWA ≥ 90, Accessibility ≥ 90. Les icônes PWA (voir `public/icons/README.md`) sont nécessaires pour un score PWA > 80.
 
 ---
 

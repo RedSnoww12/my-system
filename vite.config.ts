@@ -65,4 +65,18 @@ export default defineConfig({
     host: true,
     port: 5173,
   },
+  build: {
+    target: 'es2022',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom'],
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          charts: ['chart.js', 'react-chartjs-2'],
+          zustand: ['zustand'],
+        },
+      },
+    },
+  },
 });
