@@ -1,0 +1,7 @@
+dist
+legacy
+coverage
+node_modules
+*.min.js
+*.min.css
+yarn.lock
