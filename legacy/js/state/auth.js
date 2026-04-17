@@ -1,5 +1,7 @@
 // ===== AUTH =====
-const DEFAULT_FB={apiKey:"AIzaSyB0Gc9SN7AgP0wVRq4S0OB91G4t5dePblY",authDomain:"mysf-837cd.firebaseapp.com",projectId:"mysf-837cd",storageBucket:"mysf-837cd.firebasestorage.app",messagingSenderId:"302347533776",appId:"1:302347533776:web:1491f9c5552a68ea478dd5"};
+// NOTE: Legacy reference code only. The original hardcoded Firebase config
+// has been scrubbed — see the V2 app (src/lib/firebase.ts + .env.local).
+const DEFAULT_FB={apiKey:"<REDACTED>",authDomain:"<REDACTED>.firebaseapp.com",projectId:"<REDACTED>",storageBucket:"<REDACTED>.firebasestorage.app",messagingSenderId:"<REDACTED>",appId:"<REDACTED>"};
 let _authHandled=false;
 function initFirebase(){const c=ld("nt_firebase",null);const cfg=(c&&c.apiKey)?{apiKey:c.apiKey,authDomain:c.projectId+'.firebaseapp.com',projectId:c.projectId}:DEFAULT_FB;try{if(!firebase.apps.length)firebase.initializeApp(cfg);firebaseReady=true;firebase.auth().onAuthStateChanged(async u=>{if(u){currentUser=u;if(_authHandled)return;_authHandled=true;$('auth').classList.add('hidden');const hadData=ld("nt_setup",false);const loaded=await cloudLoad();if(!hadData&&loaded)sv("nt_setup",true);showApp();autoSync()}})}catch(e){console.warn('Firebase init error',e)}}
 function initAuth(){initFirebase();$('aSkip').addEventListener('click',()=>{$('auth').classList.add('hidden');showApp()});
