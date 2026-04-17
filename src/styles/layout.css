@@ -3,6 +3,58 @@
    No borders · Tonal depth · Glassmorphism on floating chrome
    ============================================================ */
 
+/* ── Portrait-only rotate gate ────────────────────────── */
+.rotate-gate {
+  display: none;
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .rotate-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+  .rotate-gate-ico {
+    font-size: 56px;
+    color: var(--m3-tertiary);
+    animation: rotate-hint 2.4s var(--ease-out) infinite;
+  }
+  .rotate-gate-t {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--t1);
+    margin: 0;
+  }
+  .rotate-gate-s {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: var(--m3-on-surface-variant);
+    margin: 0;
+    max-width: 320px;
+  }
+  /* Hide the rest of the app while the gate is up */
+  #root > :not(.rotate-gate) {
+    visibility: hidden;
+  }
+}
+@keyframes rotate-hint {
+  0%,
+  100% {
+    transform: rotate(-90deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+}
+
 /* ── Auth ─────────────────────────────────────────────── */
 .auth {
   position: fixed;
