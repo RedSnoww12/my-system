@@ -10,6 +10,7 @@ interface Props {
 const DEFAULT_CONTENT_STYLE: CSSProperties = {
   maxHeight: 'calc(100dvh - 24px)',
   overflowY: 'auto',
+  overflowX: 'hidden',
 };
 
 export default function Modal({

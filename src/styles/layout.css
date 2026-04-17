@@ -200,12 +200,16 @@
 /* ── Global inputs ────────────────────────────────────── */
 .inp {
   flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   background: var(--s3);
   border: none;
   border-radius: var(--r);
   padding: 14px 16px;
   color: var(--t1);
   font-size: 16px;
+  font-family: inherit;
   transition:
     background var(--dur-fast) var(--ease-out),
     box-shadow var(--dur-fast) var(--ease-out);

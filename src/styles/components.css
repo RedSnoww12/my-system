@@ -201,10 +201,16 @@
   width: 100%;
   max-width: 430px;
   border: none;
+  box-sizing: border-box;
   animation: mSlide var(--dur-slow) var(--ease-spring);
   box-shadow:
     0 -32px 64px 0 rgba(88, 222, 160, 0.06),
     0 -8px 32px 0 rgba(0, 0, 0, 0.4);
+}
+.modal *,
+.modal *::before,
+.modal *::after {
+  box-sizing: border-box;
 }
 .modal::before {
   content: '';
