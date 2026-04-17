@@ -5,6 +5,7 @@ import {
   type ChangeEvent,
   type FormEvent,
 } from 'react';
+import Modal from '@/components/ui/Modal';
 import { loadJSON, STORAGE_KEYS } from '@/lib/storage';
 import {
   analyzeMeal,
@@ -76,110 +77,110 @@ export default function AIAnalysisModal({ open, onClose, onConfirm }: Props) {
     onClose();
   };
 
-  if (!open) return null;
-
   return (
-    <div className="modal show" onClick={close}>
-      <div className="modal-in" onClick={(e) => e.stopPropagation()}>
-        <h3>✨ Analyse IA</h3>
+    <Modal
+      open={open}
+      onClose={close}
+      contentStyle={{ maxHeight: '90vh', overflowY: 'auto' }}
+    >
+      <h3>✨ Analyse IA</h3>
 
-        {status.kind !== 'result' && (
-          <form onSubmit={handleAnalyze}>
-            <label
-              htmlFor="aiPhoto"
-              className="btn btn-o"
+      {status.kind !== 'result' && (
+        <form onSubmit={handleAnalyze}>
+          <label
+            htmlFor="aiPhoto"
+            className="btn btn-o"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              marginBottom: 10,
+              cursor: 'pointer',
+            }}
+          >
+            <span className="material-symbols-outlined">photo_camera</span>
+            {imageB64 ? 'Changer la photo' : 'Ajouter une photo'}
+          </label>
+          <input
+            ref={fileInputRef}
+            id="aiPhoto"
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={handleFile}
+          />
+
+          {imageB64 && (
+            <img
+              src={imageB64}
+              alt="Aperçu"
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
+                width: '100%',
+                borderRadius: 'var(--r)',
                 marginBottom: 10,
-                cursor: 'pointer',
+                maxHeight: 220,
+                objectFit: 'cover',
+              }}
+            />
+          )}
+
+          <textarea
+            className="inp"
+            rows={3}
+            placeholder="Décris le repas (ex: 250g poulet + riz + salade)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            style={{ resize: 'vertical' }}
+          />
+
+          {status.kind === 'error' && (
+            <div
+              style={{
+                marginTop: 10,
+                padding: '10px 12px',
+                borderRadius: 10,
+                background: 'var(--redG, rgba(255,107,107,.1))',
+                color: 'var(--red)',
+                fontSize: '.78rem',
+                lineHeight: 1.5,
               }}
             >
-              <span className="material-symbols-outlined">photo_camera</span>
-              {imageB64 ? 'Changer la photo' : 'Ajouter une photo'}
-            </label>
-            <input
-              ref={fileInputRef}
-              id="aiPhoto"
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={handleFile}
-            />
-
-            {imageB64 && (
-              <img
-                src={imageB64}
-                alt="Aperçu"
-                style={{
-                  width: '100%',
-                  borderRadius: 'var(--r)',
-                  marginBottom: 10,
-                  maxHeight: 220,
-                  objectFit: 'cover',
-                }}
-              />
-            )}
-
-            <textarea
-              className="inp"
-              rows={3}
-              placeholder="Décris le repas (ex: 250g poulet + riz + salade)"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              style={{ resize: 'vertical' }}
-            />
-
-            {status.kind === 'error' && (
-              <div
-                style={{
-                  marginTop: 10,
-                  padding: '10px 12px',
-                  borderRadius: 10,
-                  background: 'var(--redG, rgba(255,107,107,.1))',
-                  color: 'var(--red)',
-                  fontSize: '.78rem',
-                  lineHeight: 1.5,
-                }}
-              >
-                <div style={{ fontWeight: 700, marginBottom: 2 }}>
-                  {describeAiError(status.error).title}
-                </div>
-                <div style={{ opacity: 0.85 }}>
-                  {describeAiError(status.error).msg}
-                </div>
+              <div style={{ fontWeight: 700, marginBottom: 2 }}>
+                {describeAiError(status.error).title}
               </div>
-            )}
-
-            <div className="modal-row" style={{ marginTop: 12 }}>
-              <button type="button" className="btn btn-o" onClick={close}>
-                Annuler
-              </button>
-              <button
-                type="submit"
-                className="btn btn-p"
-                disabled={status.kind === 'loading'}
-              >
-                {status.kind === 'loading' ? 'Analyse…' : 'Analyser'}
-              </button>
+              <div style={{ opacity: 0.85 }}>
+                {describeAiError(status.error).msg}
+              </div>
             </div>
-          </form>
-        )}
+          )}
 
-        {status.kind === 'result' && (
-          <AiResult
-            result={status.result}
-            onConfirm={() => {
-              onConfirm(status.result);
-              close();
-            }}
-            onReset={() => setStatus({ kind: 'idle' })}
-          />
-        )}
-      </div>
-    </div>
+          <div className="acts" style={{ marginTop: 12 }}>
+            <button type="button" className="btn btn-o" onClick={close}>
+              Annuler
+            </button>
+            <button
+              type="submit"
+              className="btn btn-p"
+              disabled={status.kind === 'loading'}
+            >
+              {status.kind === 'loading' ? 'Analyse…' : 'Analyser'}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {status.kind === 'result' && (
+        <AiResult
+          result={status.result}
+          onConfirm={() => {
+            onConfirm(status.result);
+            close();
+          }}
+          onReset={() => setStatus({ kind: 'idle' })}
+        />
+      )}
+    </Modal>
   );
 }
 
@@ -331,7 +332,7 @@ function AiResult({
         )}
       </div>
 
-      <div className="modal-row" style={{ marginTop: 12 }}>
+      <div className="acts" style={{ marginTop: 12 }}>
         <button type="button" className="btn btn-o" onClick={onReset}>
           Refaire
         </button>

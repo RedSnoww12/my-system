@@ -1,4 +1,5 @@
 import { useCallback, useState, type FormEvent } from 'react';
+import Modal from '@/components/ui/Modal';
 import { useBarcodeScanner } from './useBarcodeScanner';
 import { lookupBarcode } from './openFoodFacts';
 import { getAllFoods } from '@/features/nutrition/foodSearch';
@@ -104,8 +105,6 @@ export default function ScannerModal({
     handleCode(v);
   };
 
-  if (!open) return null;
-
   const messageColor =
     state.status === 'error' ||
     state.status === 'unsupported' ||
@@ -114,78 +113,76 @@ export default function ScannerModal({
       : 'var(--t2)';
 
   return (
-    <div className="modal show" onClick={onClose}>
-      <div className="modal-in" onClick={(e) => e.stopPropagation()}>
-        <h3>📷 Scanner un code-barres</h3>
+    <Modal open={open} onClose={onClose}>
+      <h3>📷 Scanner un code-barres</h3>
+      <div
+        style={{
+          position: 'relative',
+          width: '100%',
+          aspectRatio: '4 / 3',
+          background: '#000',
+          borderRadius: 'var(--r)',
+          overflow: 'hidden',
+          marginTop: 8,
+        }}
+      >
+        <video
+          ref={videoRef}
+          playsInline
+          muted
+          autoPlay
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
         <div
           style={{
-            position: 'relative',
-            width: '100%',
-            aspectRatio: '4 / 3',
-            background: '#000',
-            borderRadius: 'var(--r)',
-            overflow: 'hidden',
-            marginTop: 8,
+            position: 'absolute',
+            inset: '15% 10%',
+            border: '2px solid var(--acc)',
+            borderRadius: 8,
+            boxShadow: '0 0 0 9999px rgba(0,0,0,.35)',
+            pointerEvents: 'none',
           }}
-        >
-          <video
-            ref={videoRef}
-            playsInline
-            muted
-            autoPlay
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              inset: '15% 10%',
-              border: '2px solid var(--acc)',
-              borderRadius: 8,
-              boxShadow: '0 0 0 9999px rgba(0,0,0,.35)',
-              pointerEvents: 'none',
-            }}
-          />
-        </div>
-        <div
-          style={{
-            margin: '10px 0 6px',
-            fontSize: '.78rem',
-            textAlign: 'center',
-            minHeight: '1.2em',
-            color: messageColor,
-          }}
-        >
-          {busy ? 'Recherche…' : state.message}
-        </div>
-        <form
-          onSubmit={handleManualSubmit}
-          style={{ display: 'flex', gap: 6, marginTop: 4 }}
-        >
-          <input
-            type="text"
-            inputMode="numeric"
-            className="inp"
-            placeholder="Ou saisis le code"
-            value={manualCode}
-            onChange={(e) => setManualCode(e.target.value)}
-            style={{
-              flex: 1,
-              borderColor: manualError ? 'var(--red)' : undefined,
-            }}
-          />
-          <button type="submit" className="btn btn-p btn-sm">
-            OK
-          </button>
-        </form>
-        <button
-          type="button"
-          className="btn btn-o"
-          onClick={onClose}
-          style={{ width: '100%', marginTop: 10 }}
-        >
-          Fermer
-        </button>
+        />
       </div>
-    </div>
+      <div
+        style={{
+          margin: '10px 0 6px',
+          fontSize: '.78rem',
+          textAlign: 'center',
+          minHeight: '1.2em',
+          color: messageColor,
+        }}
+      >
+        {busy ? 'Recherche…' : state.message}
+      </div>
+      <form
+        onSubmit={handleManualSubmit}
+        style={{ display: 'flex', gap: 6, marginTop: 4 }}
+      >
+        <input
+          type="text"
+          inputMode="numeric"
+          className="inp"
+          placeholder="Ou saisis le code"
+          value={manualCode}
+          onChange={(e) => setManualCode(e.target.value)}
+          style={{
+            flex: 1,
+            borderColor: manualError ? 'var(--red)' : undefined,
+          }}
+        />
+        <button type="submit" className="btn btn-p btn-sm">
+          OK
+        </button>
+      </form>
+      <button
+        type="button"
+        className="btn btn-o"
+        onClick={onClose}
+        style={{ width: '100%', marginTop: 10 }}
+      >
+        Fermer
+      </button>
+    </Modal>
   );
 }

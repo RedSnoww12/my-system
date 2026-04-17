@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import Modal from '@/components/ui/Modal';
 import PhaseSelector from './PhaseSelector';
 import { useNutritionStore } from '@/store/useNutritionStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
@@ -37,8 +38,6 @@ export default function WeightAddModal({ open, onClose }: Props) {
     setActualInput('');
     setPhase(currentPhase);
   }, [open, currentPhase]);
-
-  if (!open) return null;
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -92,59 +91,81 @@ export default function WeightAddModal({ open, onClose }: Props) {
   };
 
   return (
-    <div className="modal show" onClick={onClose}>
-      <div className="modal-in" onClick={(e) => e.stopPropagation()}>
-        <h3>Ajouter une pesée</h3>
-        <form onSubmit={handleSubmit}>
-          <label className="modal-label">Date</label>
-          <input
-            type="date"
-            className="inp"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
+    <Modal open={open} onClose={onClose}>
+      <h3>Ajouter une pesée</h3>
+      <form onSubmit={handleSubmit}>
+        <FieldLabel>Date</FieldLabel>
+        <input
+          type="date"
+          className="inp"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          style={{ width: '100%' }}
+        />
 
-          <label className="modal-label">Poids (kg)</label>
-          <input
-            type="text"
-            inputMode="decimal"
-            className="inp"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-          />
+        <FieldLabel>Poids (kg)</FieldLabel>
+        <input
+          type="text"
+          inputMode="decimal"
+          className="inp"
+          value={weight}
+          onChange={(e) => setWeight(e.target.value)}
+          style={{ width: '100%' }}
+        />
 
-          <label className="modal-label">Objectif kcal</label>
-          <input
-            type="number"
-            inputMode="numeric"
-            className="inp"
-            value={targetInput}
-            onChange={(e) => setTargetInput(e.target.value)}
-            placeholder={`${targets.kcal} (auto)`}
-          />
+        <FieldLabel>Objectif kcal</FieldLabel>
+        <input
+          type="number"
+          inputMode="numeric"
+          className="inp"
+          value={targetInput}
+          onChange={(e) => setTargetInput(e.target.value)}
+          placeholder={`${targets.kcal} (auto)`}
+          style={{ width: '100%' }}
+        />
 
-          <label className="modal-label">Réel kcal (optionnel)</label>
-          <input
-            type="number"
-            inputMode="numeric"
-            className="inp"
-            value={actualInput}
-            onChange={(e) => setActualInput(e.target.value)}
-          />
+        <FieldLabel>Réel kcal (optionnel)</FieldLabel>
+        <input
+          type="number"
+          inputMode="numeric"
+          className="inp"
+          value={actualInput}
+          onChange={(e) => setActualInput(e.target.value)}
+          style={{ width: '100%' }}
+        />
 
-          <label className="modal-label">Phase</label>
-          <PhaseSelector value={phase} onChange={setPhase} />
+        <FieldLabel>Phase</FieldLabel>
+        <PhaseSelector value={phase} onChange={setPhase} />
 
-          <div className="modal-row" style={{ marginTop: 12 }}>
-            <button type="button" className="btn btn-o" onClick={onClose}>
-              Annuler
-            </button>
-            <button type="submit" className="btn btn-p">
-              Ajouter
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="acts" style={{ marginTop: 12 }}>
+          <button type="button" className="btn btn-o" onClick={onClose}>
+            Annuler
+          </button>
+          <button type="submit" className="btn btn-p">
+            Ajouter
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <label
+      style={{
+        display: 'block',
+        marginTop: 12,
+        marginBottom: 6,
+        fontSize: '.62rem',
+        textTransform: 'uppercase',
+        letterSpacing: '.14em',
+        color: 'var(--t3)',
+        fontFamily: "'JetBrains Mono', monospace",
+        fontWeight: 700,
+      }}
+    >
+      {children}
+    </label>
   );
 }
