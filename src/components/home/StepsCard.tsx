@@ -1,8 +1,15 @@
-import { useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+} from 'react';
 import Modal from '@/components/ui/Modal';
 import { toast } from '@/components/ui/toastStore';
 import { useTweenInt } from '@/hooks/useTween';
 import { todayISO } from '@/lib/date';
+import { sanitizeInteger } from '@/lib/numericInput';
 import { useTrackingStore } from '@/store/useTrackingStore';
 
 interface Props {
@@ -13,14 +20,39 @@ interface Props {
 const formatFr = (n: number) =>
   n.toLocaleString('fr-FR').replace(/\u202F/g, ' ');
 
+function last7Dates(todayIso: string): string[] {
+  const arr: string[] = [];
+  const today = new Date(todayIso + 'T00:00:00');
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    arr.push(d.toISOString().slice(0, 10));
+  }
+  return arr;
+}
+
 export default function StepsCard({ steps, goal }: Props) {
   const valueRef = useTweenInt<HTMLDivElement>(steps, 450);
+  const stepsMap = useTrackingStore((s) => s.steps);
   const setStepsForDate = useTrackingStore((s) => s.setStepsForDate);
 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
 
   const pct = goal ? Math.min(100, Math.round((steps / goal) * 100)) : 0;
+
+  const weekBars = useMemo(() => {
+    const today = todayISO();
+    const dates = last7Dates(today);
+    const values = dates.map((d) => stepsMap[d] ?? 0);
+    const max = Math.max(...values, Math.round(goal * 0.4));
+    return dates.map((d, i) => ({
+      date: d,
+      value: values[i],
+      ratio: max > 0 ? values[i] / max : 0,
+      active: d === today,
+    }));
+  }, [stepsMap, goal]);
 
   useEffect(() => {
     if (open) setValue(steps > 0 ? String(steps) : '');
@@ -48,27 +80,36 @@ export default function StepsCard({ steps, goal }: Props) {
   return (
     <>
       <div
-        className="bento bento-steps"
+        className="kl-bento kl-bento-steps"
         role="button"
         tabIndex={0}
         aria-label="Modifier les pas du jour"
         onClick={() => setOpen(true)}
         onKeyDown={handleKeyDown}
       >
-        <div className="bn-h">
-          <span className="material-symbols-outlined bn-ico">
-            directions_walk
+        <div className="kl-bento-head">
+          <span className="kl-bento-lbl">STEPS</span>
+          <span
+            className="kl-bento-pill"
+            style={{ color: 'var(--acc)', background: 'var(--grnG)' }}
+          >
+            {pct}%
           </span>
-          <span className="bn-l">Activité</span>
         </div>
-        <div ref={valueRef} className="bn-v">
+        <div ref={valueRef} className="kl-bento-num">
           {formatFr(steps)}
         </div>
-        <div className="bn-sub">
-          Objectif : <span>{formatFr(goal)}</span>
-        </div>
-        <div className="bn-bw">
-          <div className="bn-bf" style={{ width: `${pct}%` }} />
+        <div className="kl-bento-sub">/ {formatFr(goal)} goal</div>
+        <div className="kl-bento-weekbars" aria-hidden>
+          {weekBars.map((b) => (
+            <span
+              key={b.date}
+              className={`kl-bento-weekbar ${b.active ? 'active' : ''}`}
+              style={{
+                height: `${Math.max(4, b.ratio * 100)}%`,
+              }}
+            />
+          ))}
         </div>
       </div>
 
@@ -80,7 +121,7 @@ export default function StepsCard({ steps, goal }: Props) {
             inputMode="numeric"
             className="inp"
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) => setValue(sanitizeInteger(e.target.value))}
             placeholder="Ex. 8500"
             autoFocus
             style={{ width: '100%' }}

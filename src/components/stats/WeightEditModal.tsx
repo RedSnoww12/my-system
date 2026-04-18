@@ -7,6 +7,7 @@ import { useTrackingStore } from '@/store/useTrackingStore';
 import { usePalierStore } from '@/store/usePalierStore';
 import { toast } from '@/components/ui/toastStore';
 import { formatShortDate } from '@/lib/date';
+import { sanitizeDecimal } from '@/lib/numericInput';
 import type { MealEntry, Phase, WeightEntry } from '@/types';
 
 interface Props {
@@ -135,7 +136,7 @@ export default function WeightEditModal({ open, date, onClose }: Props) {
           inputMode="decimal"
           className="inp"
           value={weightInput}
-          onChange={(e) => setWeightInput(e.target.value)}
+          onChange={(e) => setWeightInput(sanitizeDecimal(e.target.value))}
           style={{ width: '100%' }}
         />
 

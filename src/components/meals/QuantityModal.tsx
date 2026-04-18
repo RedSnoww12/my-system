@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import Modal from '@/components/ui/Modal';
+import { sanitizeDecimal } from '@/lib/numericInput';
 import type { FoodTuple } from '@/types';
 
 interface Props {
@@ -49,7 +50,7 @@ export default function QuantityModal({
           className="inp"
           autoFocus
           value={qty}
-          onChange={(e) => setQty(e.target.value)}
+          onChange={(e) => setQty(sanitizeDecimal(e.target.value))}
           placeholder="Quantité (g)"
           style={{ width: '100%' }}
         />
