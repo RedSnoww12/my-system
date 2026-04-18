@@ -6,7 +6,6 @@ import WaterTracker from '@/components/home/WaterTracker';
 import StepsCard from '@/components/home/StepsCard';
 import WeightCard from '@/components/home/WeightCard';
 import TodayMealsSummary from '@/components/home/TodayMealsSummary';
-import RecommendationAlert from '@/components/home/RecommendationAlert';
 import AnalysisCard from '@/components/home/AnalysisCard';
 import GettingStartedCard from '@/components/home/GettingStartedCard';
 import { computeStreak, dayTotals } from '@/features/nutrition/totals';
@@ -96,13 +95,6 @@ export default function HomePage() {
       <div ref={weightRef}>
         <WeightCard />
       </div>
-
-      {analysis?.trend && analysis.recommendation && (
-        <RecommendationAlert
-          trend={analysis.trend}
-          recommendation={analysis.recommendation}
-        />
-      )}
 
       {analysis && <AnalysisCard analysis={analysis} stats={stats} />}
 

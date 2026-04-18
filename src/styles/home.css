@@ -385,66 +385,6 @@
   margin-left: 2px;
 }
 
-/* ── Alert line ──────────────────────────────────────── */
-.kl-alert {
-  border-radius: 12px;
-  padding: 10px 14px;
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.kl-alert-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.kl-alert-body {
-  flex: 1;
-  min-width: 0;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 11px;
-  line-height: 1.45;
-  color: var(--t1);
-}
-.kl-alert-tag {
-  font-weight: 700;
-  margin-right: 6px;
-}
-.kl-alert-msg {
-  color: var(--t1);
-}
-.kl-alert-sub {
-  font-size: 9px;
-  color: var(--t3);
-  margin-top: 3px;
-  letter-spacing: 0.06em;
-}
-.kl-alert-btn {
-  background: var(--s3);
-  color: var(--t1);
-  border: none;
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition:
-    background var(--dur-fast) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out);
-}
-.kl-alert-btn:hover {
-  background: var(--s4);
-}
-.kl-alert-btn:active {
-  transform: scale(0.96);
-}
-
 /* ── Bento (water + steps) ───────────────────────────── */
 .kl-bento-row {
   display: grid;
@@ -727,11 +667,11 @@
 .kl-analysis {
   background: var(--s1);
   border-radius: 18px;
-  padding: 16px 18px;
+  padding: 18px 18px 16px;
   margin-bottom: 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 .kl-analysis-head {
   display: flex;
@@ -739,35 +679,13 @@
   align-items: center;
   gap: 10px;
 }
-.kl-analysis-head-l {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-.kl-analysis-ico {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.kl-analysis-title {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--t1);
-  letter-spacing: -0.01em;
-}
-.kl-analysis-sub {
+.kl-analysis-sectlbl {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-variant-numeric: tabular-nums;
-  font-size: 10px;
+  font-size: 9px;
+  font-weight: 600;
   color: var(--t3);
-  margin-top: 2px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
 }
 .kl-analysis-pill {
   display: inline-flex;
@@ -781,36 +699,145 @@
   text-transform: uppercase;
   flex-shrink: 0;
 }
-.kl-analysis-quote {
-  padding: 10px 12px;
-  background: var(--s2);
-  border-radius: 10px;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 11px;
-  color: var(--t1);
-  line-height: 1.5;
+.kl-analysis-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
-.kl-analysis-cta {
-  width: 100%;
-  height: 40px;
-  background: var(--grad-primary);
-  color: #0a1410;
-  border: none;
-  border-radius: 12px;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 11px;
+.kl-analysis-verdict {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 19px;
   font-weight: 700;
+  color: var(--t1);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.kl-analysis-subline {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--t2);
+  line-height: 1.4;
+}
+
+/* Slope comparison */
+.kl-slope-box {
+  background: var(--s2);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.kl-slope-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+.kl-slope-lbl {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--t3);
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+}
+.kl-slope-val {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  font-weight: 700;
+}
+.kl-slope-unit {
+  color: var(--t3);
+  font-weight: 400;
+  font-size: 11px;
+}
+.kl-slope-bar {
+  height: 4px;
+  background: var(--s3);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.kl-slope-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--slope-color);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--slope-color) 40%, transparent);
+  border-radius: 2px;
+  transition: width var(--dur-base) var(--ease-out);
+}
+.kl-slope-fill.dashed {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--slope-color) 0 4px,
+    transparent 4px 7px
+  );
+  box-shadow: none;
+}
+
+/* Recommendation strip */
+.kl-reco-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--org) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--org) 20%, transparent);
+}
+.kl-reco-ico {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  background: var(--org);
+  color: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.kl-reco-ico .material-symbols-outlined {
+  font-size: 14px;
+  font-weight: 800;
+}
+.kl-reco-msg {
+  flex: 1;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--t1);
+  line-height: 1.35;
+}
+.kl-reco-msg b {
+  color: var(--org);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.kl-reco-apply {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--org);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--org) 35%, transparent);
+  border-radius: 7px;
+  padding: 6px 9px;
   cursor: pointer;
+  white-space: nowrap;
+  text-transform: uppercase;
   transition:
     transform var(--dur-fast) var(--ease-out),
-    filter var(--dur-fast) var(--ease-out);
+    background var(--dur-fast) var(--ease-out);
 }
-.kl-analysis-cta:active {
-  transform: scale(0.97);
-  filter: brightness(0.94);
+.kl-reco-apply:active {
+  transform: scale(0.96);
+  background: color-mix(in srgb, var(--org) 12%, transparent);
 }
+
 .kl-analysis-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -818,24 +845,25 @@
 }
 .kl-stat-cell {
   background: var(--s2);
-  border-radius: 10px;
-  padding: 10px 12px;
+  border-radius: 12px;
+  padding: 11px 13px;
 }
 .kl-stat-lbl {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 9px;
+  font-weight: 600;
   color: var(--t3);
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
 }
 .kl-stat-val {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 700;
   color: var(--t1);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 /* ── Meals journal ───────────────────────────────────── */
