@@ -3,11 +3,18 @@ import { SPORT_CATEGORIES } from '@/data/constants';
 import { useTrackingStore } from '@/store/useTrackingStore';
 import { toast } from '@/components/ui/toastStore';
 import { todayISO } from '@/lib/date';
+import { sanitizeInteger } from '@/lib/numericInput';
 import type { SportCategory, Workout } from '@/types';
 
 interface Props {
   category: Exclude<SportCategory, 'muscu'>;
 }
+
+const CAT_ACCENT: Record<Props['category'], string> = {
+  cardio: 'var(--cyan)',
+  sport: 'var(--org)',
+  combat: 'var(--pnk)',
+};
 
 export default function OtherSportForm({ category }: Props) {
   const addWorkout = useTrackingStore((s) => s.addWorkout);
@@ -18,6 +25,7 @@ export default function OtherSportForm({ category }: Props) {
   const [notes, setNotes] = useState('');
 
   const options = SPORT_CATEGORIES[category];
+  const accent = CAT_ACCENT[category];
 
   const handleSave = () => {
     const dur = parseInt(duration, 10) || 0;
@@ -46,62 +54,71 @@ export default function OtherSportForm({ category }: Props) {
 
   return (
     <>
-      <div className="stitle">Nouvelle séance</div>
-      <div className="card">
-        <div className="stitle" style={{ marginBottom: 6 }}>
-          Choisir un sport
+      <div className="kl-sport-section-lbl">
+        <span className="kl-sport-section-bar" aria-hidden />
+        ACTIVITÉ
+      </div>
+      <div className="kl-sport-activity-card">
+        <div className="kl-sport-muscles">
+          {options.map((s) => {
+            const on = sport === s;
+            return (
+              <button
+                key={s}
+                type="button"
+                className={`kl-sport-muscle ${on ? 'on' : ''}`}
+                style={
+                  on
+                    ? ({ '--muscle-color': accent } as React.CSSProperties)
+                    : undefined
+                }
+                onClick={() => setSport(on ? '' : s)}
+              >
+                {s}
+              </button>
+            );
+          })}
         </div>
-        <div className="split-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
-          {options.map((s) => (
-            <div
-              key={s}
-              className={`split-btn${sport === s ? ' sel' : ''}`}
-              onClick={() => setSport(sport === s ? '' : s)}
-            >
-              {s}
-            </div>
-          ))}
-        </div>
+      </div>
 
-        <div className="irow" style={{ marginTop: 8 }}>
-          <input
-            type="number"
-            inputMode="numeric"
-            className="inp"
-            placeholder="Durée (min)"
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-            style={{ maxWidth: 90 }}
-          />
-          <input
-            type="number"
-            inputMode="numeric"
-            className="inp"
-            placeholder="Calories"
-            value={calories}
-            onChange={(e) => setCalories(e.target.value)}
-            style={{ maxWidth: 90 }}
-          />
-        </div>
-        <div className="irow">
+      <div className="kl-sport-stats">
+        <div className="kl-sport-stat">
+          <div className="kl-sport-stat-lbl">DURÉE · MIN</div>
           <input
             type="text"
-            className="inp"
-            placeholder="Notes…"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+            inputMode="numeric"
+            className="kl-sport-stat-inp"
+            placeholder="45"
+            value={duration}
+            onChange={(e) => setDuration(sanitizeInteger(e.target.value))}
           />
         </div>
-
-        <button
-          type="button"
-          className="btn btn-p"
-          onClick={handleSave}
-          style={{ width: '100%' }}
-        >
-          Enregistrer
-        </button>
+        <div className="kl-sport-stat">
+          <div className="kl-sport-stat-lbl">KCAL · BRÛLÉES</div>
+          <input
+            type="text"
+            inputMode="numeric"
+            className="kl-sport-stat-inp"
+            placeholder="350"
+            value={calories}
+            onChange={(e) => setCalories(sanitizeInteger(e.target.value))}
+          />
+        </div>
       </div>
+
+      <div className="kl-sport-notes">
+        <input
+          type="text"
+          className="kl-sport-notes-inp"
+          placeholder="Notes…"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+        />
+      </div>
+
+      <button type="button" className="kl-sport-save" onClick={handleSave}>
+        Enregistrer la séance
+      </button>
     </>
   );
 }

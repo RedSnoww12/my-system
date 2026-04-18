@@ -1,4 +1,3 @@
-import { SPORT_CATEGORY_LABELS } from '@/data/constants';
 import type { SportCategory } from '@/types';
 
 interface Props {
@@ -6,24 +5,50 @@ interface Props {
   onChange: (next: SportCategory) => void;
 }
 
-const CATEGORIES: SportCategory[] = ['muscu', 'cardio', 'sport', 'combat'];
+interface CategoryMeta {
+  key: SportCategory;
+  label: string;
+  icon: string;
+  color: string;
+}
+
+const CATEGORIES: readonly CategoryMeta[] = [
+  { key: 'muscu', label: 'Muscu', icon: 'fitness_center', color: 'var(--acc)' },
+  {
+    key: 'cardio',
+    label: 'Cardio',
+    icon: 'directions_run',
+    color: 'var(--cyan)',
+  },
+  { key: 'sport', label: 'Sport', icon: 'sports_soccer', color: 'var(--org)' },
+  { key: 'combat', label: 'Combat', icon: 'sports_mma', color: 'var(--pnk)' },
+];
 
 export default function SportTypeSelector({ value, onChange }: Props) {
   return (
-    <>
-      <div className="stitle">Type d'activité</div>
-      <div className="sport-type-row">
-        {CATEGORIES.map((c) => (
+    <div className="kl-sport-cats">
+      {CATEGORIES.map((c) => {
+        const on = c.key === value;
+        return (
           <button
-            key={c}
+            key={c.key}
             type="button"
-            className={`sport-type-btn${c === value ? ' sel' : ''}`}
-            onClick={() => onChange(c)}
+            className={`kl-sport-cat ${on ? 'on' : ''}`}
+            style={
+              {
+                '--cat-color': c.color,
+              } as React.CSSProperties
+            }
+            onClick={() => onChange(c.key)}
+            aria-pressed={on}
           >
-            {SPORT_CATEGORY_LABELS[c]}
+            <span className="material-symbols-outlined kl-sport-cat-ico">
+              {c.icon}
+            </span>
+            <span className="kl-sport-cat-label">{c.label}</span>
           </button>
-        ))}
-      </div>
-    </>
+        );
+      })}
+    </div>
   );
 }

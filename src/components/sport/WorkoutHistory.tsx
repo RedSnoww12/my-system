@@ -1,7 +1,22 @@
 import { useTrackingStore } from '@/store/useTrackingStore';
 import { formatShortDate } from '@/lib/date';
+import { SPLITS } from '@/data/constants';
+import type { Workout } from '@/types';
 
 const HISTORY_LIMIT = 15;
+
+function workoutAccent(w: Workout): string {
+  if (SPLITS.includes(w.type as (typeof SPLITS)[number]) || w.muscles)
+    return 'var(--acc)';
+  const t = w.type.toLowerCase();
+  if (/(box|mma|judo|karat|jiu|taekwondo|kick|muay|lutte)/.test(t))
+    return 'var(--pnk)';
+  if (
+    /(foot|tennis|basket|volley|rugby|hand|escal|ski|surf|roller|dans)/.test(t)
+  )
+    return 'var(--org)';
+  return 'var(--cyan)';
+}
 
 export default function WorkoutHistory() {
   const workouts = useTrackingStore((s) => s.workouts);
@@ -9,78 +24,72 @@ export default function WorkoutHistory() {
 
   const recent = [...workouts].reverse().slice(0, HISTORY_LIMIT);
 
-  if (recent.length === 0) {
-    return (
-      <>
-        <div className="stitle" style={{ marginTop: 12 }}>
-          Historique
-        </div>
-        <div className="card">
-          <div className="empty" data-ico="🏋️">
-            Aucune séance enregistrée
-          </div>
-        </div>
-      </>
-    );
-  }
-
   return (
-    <>
-      <div className="stitle" style={{ marginTop: 12 }}>
-        Historique
+    <section className="kl-sport-history">
+      <div className="kl-sport-section-lbl kl-sport-section-inline">
+        <span className="kl-sport-section-bar" aria-hidden />
+        HISTORIQUE
+        {recent.length > 0 && (
+          <span className="kl-sport-history-count">{workouts.length}</span>
+        )}
       </div>
-      {recent.map((w) => (
-        <div key={w.id} className="whi">
-          <div className="wt">
-            <div>
-              <span className="wtp">{w.type}</span>{' '}
-              <span className="wdu mono">{w.dur}min</span>
-            </div>
-            <div>
-              <span className="wdd">{formatShortDate(w.date)}</span>{' '}
+
+      {recent.length === 0 ? (
+        <div className="kl-sport-history-empty">
+          ▸ Aucune séance enregistrée — log ta première session
+        </div>
+      ) : (
+        recent.map((w, i) => {
+          const accent = workoutAccent(w);
+          const muscleLabels = w.muscles
+            ?.map((m) => `${m.name} ${m.sets}s`)
+            .join(' · ');
+          const subBits = [formatShortDate(w.date)];
+          if (muscleLabels) subBits.push(muscleLabels);
+          if (w.cal) subBits.push(`${w.cal} kcal`);
+          const totalSets = w.muscles?.reduce((s, m) => s + m.sets, 0) ?? 0;
+
+          return (
+            <div
+              key={w.id}
+              className={`kl-sport-hist-row ${i > 0 ? 'divider' : ''}`}
+            >
+              <span
+                className="kl-sport-hist-led"
+                style={{
+                  background: accent,
+                  boxShadow: `0 0 6px color-mix(in srgb, ${accent} 55%, transparent)`,
+                }}
+                aria-hidden
+              />
+              <div className="kl-sport-hist-body">
+                <div className="kl-sport-hist-title">{w.type}</div>
+                <div className="kl-sport-hist-sub">{subBits.join(' · ')}</div>
+                {w.notes && (
+                  <div className="kl-sport-hist-notes">{w.notes}</div>
+                )}
+              </div>
+              <div className="kl-sport-hist-stats">
+                <div className="kl-sport-hist-dur">
+                  {w.dur}
+                  <span className="kl-sport-hist-dur-u">MIN</span>
+                </div>
+                {totalSets > 0 && (
+                  <div className="kl-sport-hist-sets">{totalSets} sets</div>
+                )}
+              </div>
               <button
                 type="button"
-                className="wdel"
+                className="kl-sport-hist-del"
                 onClick={() => removeWorkout(w.id)}
-                aria-label="Supprimer"
+                aria-label={`Supprimer la séance ${w.type}`}
               >
-                🗑
+                <span className="material-symbols-outlined">delete</span>
               </button>
             </div>
-          </div>
-          {w.muscles && w.muscles.length > 0 && (
-            <div className="wm">
-              {w.muscles.map((m) => (
-                <span key={m.name} className="wmc">
-                  {m.name} {m.sets}s
-                </span>
-              ))}
-            </div>
-          )}
-          {w.cal ? (
-            <div className="wm">
-              <span
-                className="wmc"
-                style={{ background: 'var(--orgG)', color: 'var(--org)' }}
-              >
-                {w.cal} kcal
-              </span>
-            </div>
-          ) : null}
-          {w.notes && (
-            <div
-              style={{
-                marginTop: 3,
-                fontSize: '.62rem',
-                color: 'var(--t3)',
-                fontStyle: 'italic',
-              }}
-            >
-              {w.notes}
-            </div>
-          )}
-        </div>
-      ))}
-    </>
+          );
+        })
+      )}
+    </section>
   );
 }
