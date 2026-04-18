@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
 import WelcomeHeader from '@/components/home/WelcomeHeader';
-import StreakBar from '@/components/home/StreakBar';
 import CalorieRing from '@/components/home/CalorieRing';
 import MacroRow from '@/components/home/MacroRow';
 import WaterTracker from '@/components/home/WaterTracker';
@@ -78,7 +77,7 @@ export default function HomePage() {
 
   return (
     <div className="tp active">
-      <WelcomeHeader />
+      <WelcomeHeader streak={streak} />
       {showGettingStarted && (
         <GettingStartedCard
           onWeighIn={focusWeightInput}
@@ -86,11 +85,10 @@ export default function HomePage() {
           hasMeal={hasMeal}
         />
       )}
-      <StreakBar streak={streak} />
       <CalorieRing consumed={totals.kcal} target={targets.kcal} />
       <MacroRow totals={totals} targets={targets} />
 
-      <section className="bento-row">
+      <section className="kl-bento-row">
         <WaterTracker date={today} />
         <StepsCard steps={steps} goal={stepsGoal} />
       </section>

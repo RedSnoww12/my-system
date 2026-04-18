@@ -8,10 +8,19 @@ interface Props {
 }
 
 function rateColor(rate: number): string {
-  if (rate < 0) return 'var(--grn)';
+  if (rate < 0) return 'var(--acc)';
   if (rate > 0) return 'var(--red)';
-  return 'var(--acc)';
+  return 'var(--t1)';
 }
+
+const VARIANT_META: Record<
+  HomeAnalysis['variant'],
+  { tag: string; color: string; bg: string }
+> = {
+  increase: { tag: 'TREND ↑', color: 'var(--acc)', bg: 'var(--grnG)' },
+  decrease: { tag: 'TREND ↓', color: 'var(--org)', bg: 'var(--orgG)' },
+  maintain: { tag: 'STABLE', color: 'var(--cyan)', bg: 'var(--cyanG)' },
+};
 
 export default function AnalysisCard({ analysis, stats }: Props) {
   const targets = useSettingsStore((s) => s.targets);
@@ -23,12 +32,14 @@ export default function AnalysisCard({ analysis, stats }: Props) {
     setTargets({ ...targets, gluc: nextGluc, kcal: nextKcal });
   };
 
-  const trendSubParts: string[] = [];
+  const meta = VARIANT_META[analysis.variant];
+
+  const subBits: string[] = [];
   if (analysis.trend && analysis.trend.dir !== 'observing') {
-    trendSubParts.push(`Fenêtre ${analysis.trend.window}j`);
-    trendSubParts.push(`conf ${analysis.trend.confidence}`);
+    subBits.push(`trend ${analysis.trend.window}j`);
+    subBits.push(`conf ${analysis.trend.confidence}`);
     if (analysis.trend.adherence !== null) {
-      trendSubParts.push(`adhérence ${analysis.trend.adherence}%`);
+      subBits.push(`adh ${analysis.trend.adherence}%`);
     }
   }
 
@@ -40,93 +51,112 @@ export default function AnalysisCard({ analysis, stats }: Props) {
         : 0;
 
   return (
-    <section className={`an-card ${analysis.variant}`}>
-      <div className="an-head">
-        <div className="an-ico">
-          <span className="material-symbols-outlined">analytics</span>
+    <section className="kl-analysis">
+      <div className="kl-analysis-head">
+        <div className="kl-analysis-head-l">
+          <div
+            className="kl-analysis-ico"
+            style={{ background: meta.bg }}
+            aria-hidden
+          >
+            <span
+              className="material-symbols-outlined"
+              style={{ color: meta.color, fontSize: 18 }}
+            >
+              analytics
+            </span>
+          </div>
+          <div>
+            <div className="kl-analysis-title">Analyse du Lab</div>
+            {subBits.length > 0 && (
+              <div className="kl-analysis-sub">{subBits.join(' · ')}</div>
+            )}
+          </div>
         </div>
-        <div className="an-hx">
-          <h3>Analyse du Lab</h3>
-          <p>{analysis.reason}</p>
-          {trendSubParts.length > 0 && (
-            <div className="an-sub">{trendSubParts.join(' · ')}</div>
-          )}
-        </div>
+        <span
+          className="kl-analysis-pill"
+          style={{ color: meta.color, background: meta.bg }}
+        >
+          {meta.tag}
+        </span>
       </div>
 
       {analysis.headline && (
-        <div className="an-quote">
-          <p>«&nbsp;{analysis.headline}&nbsp;»</p>
+        <div className="kl-analysis-quote">
+          «&nbsp;{analysis.headline}&nbsp;»
         </div>
       )}
 
       {ctaDelta !== 0 && (
         <button
           type="button"
-          className="an-cta"
+          className="kl-analysis-cta"
           onClick={() => applyDelta(ctaDelta)}
         >
           Appliquer la recommandation
         </button>
       )}
 
-      <div className="an-g">
-        <div className="an-s">
-          <div className="al">Moy cal {analysis.winDays}j</div>
-          <div className="av" style={{ color: 'var(--org)' }}>
+      <div className="kl-analysis-grid">
+        <div className="kl-stat-cell">
+          <div className="kl-stat-lbl">MOY KCAL {analysis.winDays}J</div>
+          <div className="kl-stat-val" style={{ color: 'var(--org)' }}>
             {analysis.avgKcal}
           </div>
         </div>
-        <div className="an-s">
-          <div className="al">Moy prot</div>
-          <div className="av" style={{ color: 'var(--acc)' }}>
+        <div className="kl-stat-cell">
+          <div className="kl-stat-lbl">MOY PROT</div>
+          <div className="kl-stat-val" style={{ color: 'var(--acc)' }}>
             {analysis.avgProt}g
           </div>
         </div>
-        <div className="an-s">
-          <div className="al">Évol {analysis.winDays}j</div>
+        <div className="kl-stat-cell">
+          <div className="kl-stat-lbl">ÉVOL {analysis.winDays}J</div>
           <div
-            className="av"
+            className="kl-stat-val"
             style={{ color: rateColor(analysis.weightChange) }}
           >
             {analysis.weightChange > 0 ? '+' : ''}
-            {analysis.weightChange.toFixed(1)}
+            {analysis.weightChange.toFixed(1)}kg
           </div>
         </div>
-        <div className="an-s">
-          <div className="al">Trackés</div>
-          <div className="av">
+        <div className="kl-stat-cell">
+          <div className="kl-stat-lbl">TRACKÉS</div>
+          <div className="kl-stat-val">
             {analysis.trackedDays}/{analysis.winDays}
           </div>
         </div>
       </div>
 
       {stats && stats.count >= 2 && (
-        <div className="an-g an-g2">
-          <div className="an-s">
-            <div className="al">Moy 7j</div>
-            <div className="av" style={{ color: 'var(--acc)' }}>
+        <div className="kl-analysis-grid">
+          <div className="kl-stat-cell">
+            <div className="kl-stat-lbl">MOY 7J</div>
+            <div className="kl-stat-val" style={{ color: 'var(--acc)' }}>
               {stats.avg7}
             </div>
           </div>
-          <div className="an-s">
-            <div className="al">Moy 30j</div>
-            <div className="av" style={{ color: 'var(--pur)' }}>
+          <div className="kl-stat-cell">
+            <div className="kl-stat-lbl">MOY 30J</div>
+            <div className="kl-stat-val" style={{ color: 'var(--pur)' }}>
               {stats.avg30}
             </div>
           </div>
-          <div className="an-s">
-            <div className="al">Rythme</div>
-            <div className="av" style={{ color: rateColor(stats.rate) }}>
+          <div className="kl-stat-cell">
+            <div className="kl-stat-lbl">RYTHME</div>
+            <div
+              className="kl-stat-val"
+              style={{ color: rateColor(stats.rate) }}
+            >
               {stats.rate > 0 ? '+' : ''}
               {stats.rate}/sem
             </div>
           </div>
-          <div className="an-s">
-            <div className="al">
-              {stats.estDays ? 'Objectif' : 'Régularité'}
+          <div className="kl-stat-cell">
+            <div className="kl-stat-lbl">
+              {stats.estDays ? 'OBJECTIF' : 'RÉGULARITÉ'}
             </div>
-            <div className="av" style={{ color: 'var(--org)' }}>
+            <div className="kl-stat-val" style={{ color: 'var(--org)' }}>
               {stats.estDays ? `~${stats.estDays}j` : `${stats.reg}%`}
             </div>
           </div>
