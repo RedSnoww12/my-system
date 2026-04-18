@@ -17,7 +17,8 @@ describe('tdeeCalc', () => {
     expect(r.activityMultiplier).toBe(1.55);
     expect(r.phaseMultiplier).toBe(1.0);
     expect(r.stepBonus).toBe(200);
-    expect(r.tdee).toBe(r.tdeeRaw);
+    expect(r.tdee % 100).toBe(0);
+    expect(r.tdee).toBe(Math.round(r.tdeeRaw / 100) * 100);
   });
 
   it('phase B (deficit) produces lower tdee than phase A', () => {

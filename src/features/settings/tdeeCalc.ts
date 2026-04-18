@@ -36,7 +36,7 @@ export function computeTdee(input: TdeeInput): TdeeResult {
   );
   const tdeeRaw = tdeeBase + stepBonus;
   const phaseMultiplier = PHASE_MULTIPLIERS[input.phase];
-  const tdee = Math.round(tdeeRaw * phaseMultiplier);
+  const tdee = Math.round((tdeeRaw * phaseMultiplier) / 100) * 100;
 
   const prot = Math.round(input.weight * 2);
   const lip = Math.round(input.weight);

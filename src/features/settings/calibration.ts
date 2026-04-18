@@ -32,7 +32,7 @@ export function computeCalibration(data: CalibrationData): CalibrationResult {
   const { factor } = deriveActivityDetailed(data.steps, data.sport);
   const actFactor = factor;
   const tdee = Math.round(bmr * actFactor);
-  const kcal = Math.round(tdee * PHASE_MULTIPLIERS[data.phase]);
+  const kcal = Math.round((tdee * PHASE_MULTIPLIERS[data.phase]) / 100) * 100;
   const prot = Math.round(data.weight * 2);
   const lip = Math.round(data.weight * 1);
   const gluc = Math.max(0, Math.round((kcal - prot * 4 - lip * 9) / 4));
