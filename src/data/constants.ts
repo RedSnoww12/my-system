@@ -22,6 +22,7 @@ export const DEFAULT_PROFILE: UserProfile = {
   stepsGoal: 10000,
   activity: 'moderate',
   theme: 'dark',
+  sex: 'M',
 };
 
 export const PHASE_NAMES: Record<Phase, string> = {

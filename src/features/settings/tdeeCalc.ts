@@ -1,5 +1,5 @@
 import { ACTIVITY_MULTIPLIERS, PHASE_MULTIPLIERS } from '@/data/constants';
-import type { ActivityLevel, Phase, Targets } from '@/types';
+import type { ActivityLevel, Phase, Sex, Targets } from '@/types';
 
 export interface TdeeInput {
   weight: number;
@@ -7,6 +7,8 @@ export interface TdeeInput {
   stepsGoal: number;
   activity: ActivityLevel;
   phase: Phase;
+  sex?: Sex;
+  age?: number;
 }
 
 export interface TdeeResult {
@@ -23,12 +25,18 @@ export interface TdeeResult {
 const STEP_BASELINE = 5000;
 const STEP_KCAL_PER_STEP = 0.04;
 
-export function computeBmr(weight: number, heightCm: number): number {
-  return 10 * weight + 6.25 * heightCm - 5 * 30 - 5;
+export function computeBmr(
+  weight: number,
+  heightCm: number,
+  sex: Sex = 'M',
+  age = 30,
+): number {
+  const sexOffset = sex === 'F' ? -161 : 5;
+  return 10 * weight + 6.25 * heightCm - 5 * age + sexOffset;
 }
 
 export function computeTdee(input: TdeeInput): TdeeResult {
-  const bmr = computeBmr(input.weight, input.heightCm);
+  const bmr = computeBmr(input.weight, input.heightCm, input.sex, input.age);
   const activityMultiplier = ACTIVITY_MULTIPLIERS[input.activity];
   const tdeeBase = Math.round(bmr * activityMultiplier);
   const stepBonus = Math.round(

@@ -42,7 +42,7 @@ export default function PhaseScreen({
     >
       <div style={onbFadeUp(0)}>
         <div style={{ ...monoMicro, color: T.acc, marginBottom: 8 }}>
-          ▸ 05 / OBJECTIF
+          ▸ 06 / OBJECTIF
         </div>
         <h1
           style={{

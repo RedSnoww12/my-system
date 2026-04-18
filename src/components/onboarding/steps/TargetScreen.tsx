@@ -119,7 +119,7 @@ export default function TargetScreen({
     >
       <div style={onbFadeUp(0)}>
         <div style={{ ...monoMicro, color: phaseColor, marginBottom: 8 }}>
-          ▸ 06 / POIDS CIBLE
+          ▸ 07 / POIDS CIBLE
         </div>
         <h1
           style={{

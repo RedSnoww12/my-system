@@ -58,7 +58,7 @@ export default function ActivityScreen({
     >
       <div style={onbFadeUp(0)}>
         <div style={{ ...monoMicro, color: T.acc, marginBottom: 8 }}>
-          ▸ 04 / ACTIVITÉ
+          ▸ 05 / ACTIVITÉ
         </div>
         <h1
           style={{

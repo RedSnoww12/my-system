@@ -2,6 +2,8 @@ export type Phase = 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
 
 export type Theme = 'dark' | 'light';
 
+export type Sex = 'M' | 'F';
+
 export type ActivityLevel =
   | 'sedentary'
   | 'light'
@@ -16,6 +18,7 @@ export interface UserProfile {
   stepsGoal: number;
   activity: ActivityLevel;
   theme: Theme;
+  sex: Sex;
   name?: string;
   age?: number;
   goalWeight?: number;

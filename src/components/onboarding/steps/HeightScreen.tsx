@@ -35,7 +35,7 @@ export default function HeightScreen({
     >
       <div style={onbFadeUp(0)}>
         <div style={{ ...monoMicro, color: T.acc, marginBottom: 8 }}>
-          ▸ 03 / GABARIT
+          ▸ 04 / GABARIT
         </div>
         <h1
           style={{

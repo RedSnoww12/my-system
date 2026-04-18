@@ -11,6 +11,8 @@ export default function TdeeCalcCard() {
   const stepsGoal = useSettingsStore((s) => s.stepsGoal);
   const activity = useSettingsStore((s) => s.activity);
   const phase = useSettingsStore((s) => s.phase);
+  const sex = useSettingsStore((s) => s.sex);
+  const age = useSettingsStore((s) => s.age);
   const setTargets = useSettingsStore((s) => s.setTargets);
   const confirmTdee = useSettingsStore((s) => s.confirmTdee);
 
@@ -28,6 +30,8 @@ export default function TdeeCalcCard() {
       stepsGoal,
       activity,
       phase,
+      sex,
+      age,
     });
     setResult(r);
   };

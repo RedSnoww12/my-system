@@ -35,7 +35,7 @@ export default function WeightScreen({
     >
       <div style={onbFadeUp(0)}>
         <div style={{ ...monoMicro, color: T.acc, marginBottom: 8 }}>
-          ▸ 02 / POIDS ACTUEL
+          ▸ 03 / POIDS ACTUEL
         </div>
         <h1
           style={{

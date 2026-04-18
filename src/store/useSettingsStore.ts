@@ -4,6 +4,7 @@ import { DEFAULT_PROFILE, DEFAULT_TARGETS } from '@/data/constants';
 import type {
   ActivityLevel,
   Phase,
+  Sex,
   Targets,
   Theme,
   UserProfile,
@@ -23,6 +24,7 @@ interface SettingsState {
   stepsGoal: number;
   activity: ActivityLevel;
   theme: Theme;
+  sex: Sex;
   targets: Targets;
   setup: boolean;
   tdeeConfirmed: boolean;
@@ -37,6 +39,7 @@ interface SettingsState {
   setStepsGoal: (v: number) => void;
   setActivity: (a: ActivityLevel) => void;
   setTheme: (t: Theme) => void;
+  setSex: (v: Sex) => void;
   setTargets: (t: Targets) => void;
   setName: (v: string) => void;
   setAge: (v: number) => void;
@@ -67,6 +70,7 @@ function readAll() {
       DEFAULT_PROFILE.activity,
     ),
     theme: loadJSON<Theme>(STORAGE_KEYS.theme, DEFAULT_PROFILE.theme),
+    sex: loadJSON<Sex>(STORAGE_KEYS.sex, DEFAULT_PROFILE.sex),
     targets: loadJSON<Targets>(STORAGE_KEYS.targets, DEFAULT_TARGETS),
     setup: loadJSON<boolean>(STORAGE_KEYS.setup, false),
     tdeeConfirmed: loadJSON<boolean>(STORAGE_KEYS.tdeeConfirmed, false),
@@ -107,6 +111,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     saveJSON(STORAGE_KEYS.theme, t);
     set({ theme: t });
   },
+  setSex: (v) => {
+    saveJSON(STORAGE_KEYS.sex, v);
+    set({ sex: v });
+  },
   setTargets: (t) => {
     saveJSON(STORAGE_KEYS.targets, t);
     set({ targets: t });
@@ -137,6 +145,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     saveJSON(STORAGE_KEYS.phase, profile.phase);
     saveJSON(STORAGE_KEYS.stepsGoal, profile.stepsGoal);
     saveJSON(STORAGE_KEYS.activity, profile.activity);
+    saveJSON(STORAGE_KEYS.sex, profile.sex);
     saveJSON(STORAGE_KEYS.targets, targets);
     saveJSON(STORAGE_KEYS.setup, true);
     set({
@@ -146,6 +155,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       stepsGoal: profile.stepsGoal,
       activity: profile.activity,
       theme: profile.theme,
+      sex: profile.sex,
       targets,
       setup: true,
     });

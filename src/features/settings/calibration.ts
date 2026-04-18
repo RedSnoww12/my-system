@@ -1,6 +1,6 @@
 import { PHASE_MULTIPLIERS } from '@/data/constants';
 import { deriveActivityDetailed } from './activityFromInputs';
-import type { Phase } from '@/types';
+import type { Phase, Sex } from '@/types';
 
 export interface CalibrationData {
   name: string;
@@ -11,6 +11,7 @@ export interface CalibrationData {
   sport: number;
   phase: Phase;
   targetWeight: number;
+  sex: Sex;
 }
 
 export interface CalibrationResult {
@@ -26,8 +27,9 @@ export interface CalibrationResult {
 }
 
 export function computeCalibration(data: CalibrationData): CalibrationResult {
+  const sexOffset = data.sex === 'F' ? -161 : 5;
   const bmr = Math.round(
-    10 * data.weight + 6.25 * data.height - 5 * data.age + 5,
+    10 * data.weight + 6.25 * data.height - 5 * data.age + sexOffset,
   );
   const { factor } = deriveActivityDetailed(data.steps, data.sport);
   const actFactor = factor;

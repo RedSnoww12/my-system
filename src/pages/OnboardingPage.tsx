@@ -7,9 +7,10 @@ import { cloudSave } from '@/features/auth/cloudSync';
 import { DEFAULT_PROFILE } from '@/data/constants';
 import { deriveActivity } from '@/features/settings/activityFromInputs';
 import { todayISO } from '@/lib/date';
-import type { Phase } from '@/types';
+import type { Phase, Sex } from '@/types';
 import BootScreen from '@/components/onboarding/steps/BootScreen';
 import NameAgeScreen from '@/components/onboarding/steps/NameAgeScreen';
+import SexScreen from '@/components/onboarding/steps/SexScreen';
 import WeightScreen from '@/components/onboarding/steps/WeightScreen';
 import HeightScreen from '@/components/onboarding/steps/HeightScreen';
 import ActivityScreen from '@/components/onboarding/steps/ActivityScreen';
@@ -22,6 +23,7 @@ import ReadyScreen from '@/components/onboarding/steps/ReadyScreen';
 const ONB_STEPS = [
   'boot',
   'name',
+  'sex',
   'weight',
   'height',
   'activity',
@@ -35,6 +37,7 @@ type StepKey = (typeof ONB_STEPS)[number];
 interface OnbData {
   name: string;
   age: number;
+  sex: Sex;
   weight: number;
   height: number;
   steps: number;
@@ -46,6 +49,7 @@ interface OnbData {
 const INITIAL_DATA: OnbData = {
   name: '',
   age: 28,
+  sex: DEFAULT_PROFILE.sex,
   weight: 75.0,
   height: 178,
   steps: 8000,
@@ -96,6 +100,7 @@ export default function OnboardingPage() {
         stepsGoal: data.steps,
         activity,
         theme: DEFAULT_PROFILE.theme,
+        sex: data.sex,
       },
       targets,
     );
@@ -151,6 +156,18 @@ export default function OnboardingPage() {
           setName={(v) => patch('name', v)}
           age={data.age}
           setAge={(v) => patch('age', v)}
+          onNext={next}
+          onBack={back}
+        />
+      );
+      break;
+    case 'sex':
+      body = (
+        <SexScreen
+          step={stepIdx}
+          total={total}
+          value={data.sex}
+          setValue={(v) => patch('sex', v)}
           onNext={next}
           onBack={back}
         />

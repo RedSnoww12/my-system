@@ -2,8 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { computeBmr, computeTdee } from './tdeeCalc';
 
 describe('tdeeCalc', () => {
-  it('computes BMR via Mifflin-St Jeor approximation', () => {
-    expect(computeBmr(75, 175)).toBeCloseTo(10 * 75 + 6.25 * 175 - 5 * 30 - 5);
+  it('computes male BMR via Mifflin-St Jeor approximation', () => {
+    expect(computeBmr(75, 175, 'M', 30)).toBeCloseTo(
+      10 * 75 + 6.25 * 175 - 5 * 30 + 5,
+    );
+  });
+
+  it('female BMR is ~166 kcal lower than male at same weight/height/age', () => {
+    const m = computeBmr(75, 175, 'M', 30);
+    const f = computeBmr(75, 175, 'F', 30);
+    expect(m - f).toBe(166);
   });
 
   it('applies activity + step bonus + phase multiplier', () => {
