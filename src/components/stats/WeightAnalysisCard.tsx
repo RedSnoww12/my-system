@@ -74,7 +74,10 @@ export default function WeightAnalysisCard() {
       <div style={{ marginBottom: 8 }}>
         <span
           className="chip"
-          style={{ background: `${phaseColor}20`, color: phaseColor }}
+          style={{
+            background: `color-mix(in srgb, ${phaseColor} 12%, transparent)`,
+            color: phaseColor,
+          }}
         >
           {phaseInfo}
         </span>

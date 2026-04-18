@@ -1,5 +1,5 @@
 /* ============================================================
-   Kripy — Layout: Auth, Onboarding, Header, Tabs, Navigation
+   Kripy — Layout: Auth, Header, Tabs, Navigation
    No borders · Tonal depth · Glassmorphism on floating chrome
    ============================================================ */
 
@@ -204,49 +204,6 @@
 .auth-legal a:active,
 .auth-legal a:hover {
   color: var(--acc);
-}
-
-/* ── Onboarding ───────────────────────────────────────── */
-.ob {
-  position: fixed;
-  inset: 0;
-  background: var(--bg);
-  z-index: 500;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  padding: var(--gutter);
-  text-align: left;
-}
-.ob.hidden {
-  display: none;
-}
-.ob p {
-  color: var(--t2);
-  margin-bottom: 28px;
-  font-size: 0.82rem;
-  font-weight: 500;
-}
-.ob-f {
-  width: 100%;
-  max-width: 360px;
-  text-align: left;
-}
-.ob-f label {
-  font-size: 0.58rem;
-  color: var(--t3);
-  display: block;
-  margin-bottom: 6px;
-  margin-top: 16px;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
-}
-.ob-f input,
-.ob-f select {
-  width: 100%;
 }
 
 /* ── Global inputs ────────────────────────────────────── */

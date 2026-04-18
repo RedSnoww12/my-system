@@ -59,12 +59,12 @@ export const MEAL_LABELS = [
 ] as const;
 
 export const PHASE_COLORS: Record<Phase, string> = {
-  A: '#6AEFAF',
-  B: '#FF6B9D',
-  C: '#9F9BFF',
-  D: '#FFB347',
-  E: '#6C5CE7',
-  F: '#4DD0E1',
+  A: 'var(--phA)',
+  B: 'var(--phB)',
+  C: 'var(--phC)',
+  D: 'var(--phD)',
+  E: 'var(--phE)',
+  F: 'var(--phF)',
 };
 
 export const SPLITS: readonly Split[] = [

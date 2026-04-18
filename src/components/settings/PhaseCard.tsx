@@ -45,8 +45,8 @@ export default function PhaseCard() {
           marginTop: 10,
           padding: '10px 12px',
           borderRadius: 10,
-          border: `1px solid ${detailColor}40`,
-          background: `${detailColor}10`,
+          border: `1px solid color-mix(in srgb, ${detailColor} 25%, transparent)`,
+          background: `color-mix(in srgb, ${detailColor} 10%, transparent)`,
           lineHeight: 1.5,
           fontSize: '.78rem',
         }}

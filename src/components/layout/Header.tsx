@@ -19,8 +19,8 @@ export default function Header() {
           className="ph-pill"
           style={{
             color: phaseColor,
-            background: `${phaseColor}10`,
-            borderColor: `${phaseColor}25`,
+            background: `color-mix(in srgb, ${phaseColor} 10%, transparent)`,
+            borderColor: `color-mix(in srgb, ${phaseColor} 25%, transparent)`,
           }}
         >
           <span className="d" style={{ background: phaseColor }} />
