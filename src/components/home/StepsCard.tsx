@@ -50,7 +50,7 @@ export default function StepsCard({ steps, goal }: Props) {
       date: d,
       value: values[i],
       ratio: max > 0 ? values[i] / max : 0,
-      active: d === today,
+      reached: goal > 0 && values[i] >= goal,
     }));
   }, [stepsMap, goal]);
 
@@ -104,7 +104,7 @@ export default function StepsCard({ steps, goal }: Props) {
           {weekBars.map((b) => (
             <span
               key={b.date}
-              className={`kl-bento-weekbar ${b.active ? 'active' : ''}`}
+              className={`kl-bento-weekbar ${b.reached ? 'reached' : ''}`}
               style={{
                 height: `${Math.max(4, b.ratio * 100)}%`,
               }}

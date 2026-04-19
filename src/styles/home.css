@@ -517,14 +517,17 @@
 }
 .kl-bento-weekbar {
   flex: 1;
-  min-height: 4px;
+  min-height: 6px;
   background: var(--s3);
-  border-radius: 1px;
-  transition: height var(--dur-slow) var(--ease-out);
+  border-radius: 2px;
+  transition:
+    height var(--dur-slow) var(--ease-out),
+    background var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
 }
-.kl-bento-weekbar.active {
+.kl-bento-weekbar.reached {
   background: var(--acc);
-  box-shadow: 0 0 6px color-mix(in srgb, var(--acc) 55%, transparent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--acc) 60%, transparent);
 }
 
 /* ── Weight card ─────────────────────────────────────── */
