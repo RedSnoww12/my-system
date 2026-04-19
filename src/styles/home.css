@@ -981,6 +981,3 @@
 [data-theme='light'] .kl-hero-corner {
   opacity: 0.55;
 }
-[data-theme='light'] .kl-bento-pip {
-  background: var(--s3);
-}
