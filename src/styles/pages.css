@@ -2354,9 +2354,6 @@
   background: var(--grad-primary);
   color: #0a1410;
 }
-[data-theme='light'] .meal-qm-preset.active {
-  color: #ffffff;
-}
 .meal-qm-inp {
   width: 100%;
   margin-bottom: 16px;
