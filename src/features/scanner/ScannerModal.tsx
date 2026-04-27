@@ -81,7 +81,13 @@ export default function ScannerModal({
             ? `Produit introuvable (${code})`
             : result.reason === 'no_nutrition'
               ? 'Produit trouvé mais sans valeurs nutritionnelles'
-              : 'Erreur réseau, réessaie';
+              : result.reason === 'timeout'
+                ? 'Délai dépassé, réessaie'
+                : result.reason === 'offline'
+                  ? 'Hors ligne, vérifie ta connexion'
+                  : result.reason === 'server'
+                    ? 'Service indisponible, réessaie'
+                    : 'Erreur réseau, réessaie';
         toast(msg, 'warn');
         return;
       }
