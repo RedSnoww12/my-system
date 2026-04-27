@@ -30,7 +30,7 @@
   flex-shrink: 0;
 }
 .kl-head-tag {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 6px;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
@@ -57,7 +57,7 @@
   line-height: 1;
   color: var(--t1);
   margin: 0;
-  display: inline-flex;
+  display: flex;
   flex-wrap: wrap;
   gap: 6px;
   align-items: baseline;
