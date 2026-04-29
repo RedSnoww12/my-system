@@ -68,8 +68,11 @@ src/
 ├── lib/              # firebase.ts, storage.ts, date.ts (pas de JSX)
 ├── types/            # types TS partagés, re-exportés depuis index.ts
 ├── data/             # constantes & datasets (foods.ts, constants.ts)
-├── styles/           # CSS importé une fois dans main.tsx
+├── styles/           # CSS globaux (DS Kinetic Lab) importés une fois dans main.tsx
 └── test/setup.ts     # matchers jest-dom pour Vitest
+
+# Les styles spécifiques à un composant vivent dans un CSS Module
+# colocalisé (`Foo.module.css` à côté de `Foo.tsx`). Voir §8.
 
 public/icons/         # PWA icons (à fournir en prod)
 ```
